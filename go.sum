@@ -7,6 +7,8 @@ github.com/badvassal/wlmanip v0.0.0-20191117232305-ba1fd1b0192b h1:xmWvlnJRclevj
 github.com/badvassal/wlmanip v0.0.0-20191117232305-ba1fd1b0192b/go.mod h1:bPI7tRVcsuwSbrgcukwrY0uOQrTNgA+3Qu2iSnZ8OsM=
 github.com/badvassal/wlmanip v0.0.1 h1:w+b06KATBh7MmvjTpDiHfdUe12Zvk42ebmv7X/Vl/aU=
 github.com/badvassal/wlmanip v0.0.1/go.mod h1:UAzTS98OG6oktxGwIYQLuRM3RdEUjbSuIQSPjebnNd8=
+github.com/badvassal/wlmanip v0.0.2 h1:LgOqFC79htcG4jQliqtOkFw1gpUCYYSPds/TomuaaOE=
+github.com/badvassal/wlmanip v0.0.2/go.mod h1:UAzTS98OG6oktxGwIYQLuRM3RdEUjbSuIQSPjebnNd8=
 github.com/ccollins476ad/gendata v0.0.0-20190907032834-d12e58033671/go.mod h1:eZEjzHWprwielxv3Lc6Kuw9Nr3SritHH+r1XxoxWN7w=
 github.com/ccollins476ad/psu v0.0.0-20190907034930-809b43e53c5f/go.mod h1:XkRwbocrN+dbJrf0lr0gDuKTcOmwHv5dJDLIlC3uba4=
 github.com/ccollins476ad/wltools v0.0.0-20191113043946-e972f9c2d4d6 h1:wgLZWzR4yAb3hwFm30GjR8avfIdW5co7m20yZydKRZc=
