@@ -14,12 +14,18 @@ import (
 	"github.com/badvassal/wllib/gen/wlerr"
 	"github.com/badvassal/wllib/wlutil"
 	"github.com/badvassal/wlmanip"
+	"github.com/badvassal/wlrand/version"
 )
 
 const (
-	WlrandVersion        = "0.0.1"
+	Version              = "0.0.1"
 	maxChoices           = 10
 	maxRandomizeAttempts = 100
+)
+
+var (
+	BuildDate  string = "?"
+	CommitHash string = "?"
 )
 
 type randomizeCfg struct {
@@ -175,7 +181,7 @@ func main() {
 
 	app.Name = "wlrand"
 	app.Usage = "Wasteland randomizer"
-	app.Version = WlrandVersion
+	app.Version = version.VersionStr()
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:     "path,p",

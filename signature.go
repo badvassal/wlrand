@@ -5,6 +5,7 @@ import (
 
 	"github.com/badvassal/wllib/gen/wlerr"
 	"github.com/badvassal/wllib/msq"
+	"github.com/badvassal/wlrand/version"
 )
 
 type Signature struct {
@@ -15,8 +16,8 @@ type Signature struct {
 
 func CreateSignatureMSQBlock(cfg randomizeCfg) (*msq.Block, error) {
 	sig := Signature{
-		Description: "Randomized by wlrand " + WlrandVersion,
-		Version:     WlrandVersion,
+		Description: "Randomized by wlrand",
+		Version:     version.VersionStr(),
 		Cfg:         cfg,
 	}
 
