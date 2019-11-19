@@ -3,12 +3,16 @@ github.com/badvassal/wllib v0.0.0-20191117233351-d3d2b392070c h1:Vd8FVt2NeTqWWiO
 github.com/badvassal/wllib v0.0.0-20191117233351-d3d2b392070c/go.mod h1:AUjq1gWXo9e1/Oif2NhdvY9Tn/FJqaVu3790K9vIBDM=
 github.com/badvassal/wllib v0.0.1 h1:awerjif9WPi+NM8SMCzrQqGVbr4m+VIau5/7j+sbQ2w=
 github.com/badvassal/wllib v0.0.1/go.mod h1:5ok43+VU8n52MiejMF399KinLLhC3EVKx9ZJsbMyE4s=
+github.com/badvassal/wllib v0.0.2 h1:SETBxHrQ29DeoZEg2+SanthG4Eu3gr/N4ZkuE760Vrk=
+github.com/badvassal/wllib v0.0.2/go.mod h1:5ok43+VU8n52MiejMF399KinLLhC3EVKx9ZJsbMyE4s=
 github.com/badvassal/wlmanip v0.0.0-20191117232305-ba1fd1b0192b h1:xmWvlnJRclevjIVduQMmGKzTiHuDw+VlaRm3T4OhMwM=
 github.com/badvassal/wlmanip v0.0.0-20191117232305-ba1fd1b0192b/go.mod h1:bPI7tRVcsuwSbrgcukwrY0uOQrTNgA+3Qu2iSnZ8OsM=
 github.com/badvassal/wlmanip v0.0.1 h1:w+b06KATBh7MmvjTpDiHfdUe12Zvk42ebmv7X/Vl/aU=
 github.com/badvassal/wlmanip v0.0.1/go.mod h1:UAzTS98OG6oktxGwIYQLuRM3RdEUjbSuIQSPjebnNd8=
 github.com/badvassal/wlmanip v0.0.2 h1:LgOqFC79htcG4jQliqtOkFw1gpUCYYSPds/TomuaaOE=
 github.com/badvassal/wlmanip v0.0.2/go.mod h1:UAzTS98OG6oktxGwIYQLuRM3RdEUjbSuIQSPjebnNd8=
+github.com/badvassal/wlmanip v0.0.3 h1:bJvJPKfiY/LJ4humMsgrBVCMqo7me+sx3leyHTS0ww4=
+github.com/badvassal/wlmanip v0.0.3/go.mod h1:UAzTS98OG6oktxGwIYQLuRM3RdEUjbSuIQSPjebnNd8=
 github.com/ccollins476ad/gendata v0.0.0-20190907032834-d12e58033671/go.mod h1:eZEjzHWprwielxv3Lc6Kuw9Nr3SritHH+r1XxoxWN7w=
 github.com/ccollins476ad/psu v0.0.0-20190907034930-809b43e53c5f/go.mod h1:XkRwbocrN+dbJrf0lr0gDuKTcOmwHv5dJDLIlC3uba4=
 github.com/ccollins476ad/wltools v0.0.0-20191113043946-e972f9c2d4d6 h1:wgLZWzR4yAb3hwFm30GjR8avfIdW5co7m20yZydKRZc=
