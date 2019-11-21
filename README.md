@@ -55,3 +55,7 @@ Please report bugs using the wlrand issue tracker: <https://github.com/badvassal
 ## Acknowledgements
 
 Thank you to the authors of [Wasteland: The Definitive Deconstruction](https://wasteland.gamepedia.com/Category:Wasteland:_The_Definitive_Deconstruction) without which this program would not be possible.
+
+## License
+
+[MIT License](https://opensource.org/licenses/MIT)
