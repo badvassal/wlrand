@@ -1,5 +1,7 @@
 # wlrand
 
+https://github.com/badvassal/wlrand
+
 ## Description
 
 `wlrand` is a randomizer for the 1988 DOS game Wasteland.  The current version only randomizes transitions, i.e., the tiles that transport the player from one location to another.  `wlrand` produces a "new game" in the sense that even an experienced player must explore the randomized game and discover how to reach the various locations in the wastes.
@@ -27,9 +29,17 @@ Wasteland should now be randomized.  Verify by entering any non-shop location in
 
 ## Building
 
-`wlrand` is a Go program.  To build it, obtain the official [Go compiler](https://golang.org/dl/) and run the following command from the `wlrand` directory:
+Building requires two tools:
+
+* [Go compiler](https://golang.org/dl/)
+* `make`
+
+To build, run one of the following invocations:
 ```
-go build
+make build GOOS=linux   # Linux
+make build GOOS=darwin  # MacOS
+make build GOOS=windows # Windows
+
 ```
 
 This produces a `wlrand` executable in the current directory.
