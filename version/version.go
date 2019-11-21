@@ -2,9 +2,8 @@ package version
 
 import "fmt"
 
-const Version = "0.0.2"
-
 var (
+	Version    string = "unknown_version"
 	BuildDate  string = "unknown_date"
 	CommitHash string = "unknown_commit"
 	GitState   string = ""
