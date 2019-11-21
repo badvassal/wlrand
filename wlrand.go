@@ -18,7 +18,6 @@ import (
 )
 
 const (
-	Version              = "0.0.1"
 	maxChoices           = 10
 	maxRandomizeAttempts = 100
 )
