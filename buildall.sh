@@ -14,5 +14,5 @@ tar czvf "release/wlrand-$version-macos.tgz" wlrand
 rm wlrand
 
 make build GOOS=windows
-tar czvf "release/wlrand-$version-windows.tgz" wlrand.exe
+zip "release/wlrand-$version-windows.zip" wlrand.exe
 rm wlrand.exe
