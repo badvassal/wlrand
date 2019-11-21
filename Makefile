@@ -3,8 +3,9 @@ VERSION:="0.0.4"
 DATE := $(shell date +%F,%R)
 COMMIT := $(shell git rev-parse --short HEAD)
 ifneq ($(shell git status --porcelain),)
-    GIT_STATE := "dirty"
+    COMMIT_SUFFIX := "-dirty"
 endif
+GIT_STATE := ${COMMIT}${COMMIT_SUFFIX}
 
 GOOS?=linux
 GOARCH?=amd64
@@ -18,12 +19,13 @@ all:
 	@echo "    make build GOOS=windows # Windows"
 
 .PHONY: version
-
 version:
 	@echo ${VERSION}
 
+.PHONY: gitstate
+gitstate:
+	@echo ${GIT_STATE}
+
 build:
 	@GOOS=${GOOS} GOARCH=${GOARCH} GO111MODULE=on go build -ldflags \
-	    "-X ${PKG}.Version=${VERSION} -X ${PKG}.BuildDate=${DATE} -X ${PKG}.CommitHash=${COMMIT} -X ${PKG}.GitState=${GIT_STATE}"
-
-
+	    "-X ${PKG}.Version=${VERSION} -X ${PKG}.BuildDate=${DATE} -X ${PKG}.GitState=${GIT_STATE}"
