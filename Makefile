@@ -17,5 +17,5 @@ all:
 	@echo "    make build GOOS=windows # Windows"
 
 build:
-	GOOS=${GOOS} GOARCH=${GOARCH} GO111MODULE=on go build -ldflags \
+	@GOOS=${GOOS} GOARCH=${GOARCH} GO111MODULE=on go build -ldflags \
 	    "-X ${PKG}.BuildDate=${DATE} -X ${PKG}.CommitHash=${COMMIT} -X ${PKG}.GitState=${GIT_STATE}"
