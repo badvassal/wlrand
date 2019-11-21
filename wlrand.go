@@ -148,7 +148,7 @@ func randomize(cfg randomizeCfg) error {
 		return err
 	}
 
-	pairs := coll.RoundTrips()
+	pairs := coll.FilteredRoundTrips()
 
 	ops, err := calcOps(pairs, cfg)
 	if err != nil {
