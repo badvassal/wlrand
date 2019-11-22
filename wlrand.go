@@ -205,10 +205,6 @@ func main() {
 			Usage: "Consider world map transitions",
 		},
 		cli.BoolFlag{
-			Name:  "relative",
-			Usage: "Consider relative transitions",
-		},
-		cli.BoolFlag{
 			Name:  "auto-intra",
 			Usage: "Consider automatically identified intra transitions",
 		},
@@ -238,7 +234,7 @@ func main() {
 			Seed: c.Int64("seed"),
 			CollectCfg: wlmanip.CollectCfg{
 				KeepWorld:          c.Bool("world"),
-				KeepRelative:       c.Bool("relative"),
+				KeepRelative:       false,
 				KeepShops:          false,
 				KeepDerelict:       false,
 				KeepPrevious:       false,
