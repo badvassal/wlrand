@@ -4,28 +4,40 @@ https://github.com/badvassal/wlrand
 
 ## Description
 
-`wlrand` is a randomizer for the 1988 DOS game Wasteland.  The current version only randomizes transitions, i.e., the tiles that transport the player from one location to another.  `wlrand` produces a "new game" in the sense that even an experienced player must explore the randomized game and discover how to reach the various locations in the wastes.
+`wlrand` is a randomizer for the 1988 DOS game Wasteland.  The current version only randomizes transitions, i.e., the tiles that transport the player from one location to another.  `wlrand` produces a "new game" in the sense that even an experienced player must discover how to reach the various locations in the game through exploration.
 
 ## WARNING
 
-`wlrand` permanently and irreversibly modifies your Wasteland `GAME1` and `GAME2` files.  It is imperative that you create backups of these files before running `wlrand`!
+`wlrand` irreversibly modifies your Wasteland `GAME1` and `GAME2` files.  It is imperative that you create backups of these files before running `wlrand`!
 
 ## Quick Start
 
-The below instructions assume wasteland is "installed" at `/usr/local/share/games/dos-games/wasteland`.  Please adjust accordingly if this assumption is inaccurate.
+The below instructions assume wasteland is "installed" at `/usr/local/share/games/wasteland`.  Please adjust accordingly if this assumption is inaccurate.
 
 1. Back up your game files:
 ```
-cp /usr/local/share/games/dos-games/wasteland/GAME1 cp /usr/local/share/games/dos-games/wasteland/backup-GAME1 
-cp /usr/local/share/games/dos-games/wasteland/GAME2 cp /usr/local/share/games/dos-games/wasteland/backup-GAME2 
+cp /usr/local/share/games/wasteland/GAME1 /usr/local/share/games/wasteland/backup-GAME1 
+cp /usr/local/share/games/wasteland/GAME2 /usr/local/share/games/wasteland/backup-GAME2 
 ```
 
 2. Run the randomizer:
 ```
-wlrand -p /usr/local/share/games/dos-games/wasteland
+wlrand -p /usr/local/share/games/wasteland
 ```
 
 Wasteland should now be randomized.  Verify by entering any non-shop location in a city (e.g., Highpool community center).
+
+## Scope
+
+In its default mode, `wlrand` randomizes transitions that meet the following criteria:
+
+* *Don't involve the world map.*  Transitions involving the world map, i.e., transitions into and out of cities, are left unmodified.  Specify `--world` to lift this restriction [\*].
+* *Are not post-sewers.*  That is to say, locations within the Darwin base, Sleeper Base, Guardian Citadel, and Base Cochise are not considered during randomization.  The rationale for this restriction is 1) Several post-sewers transitions put a nascent party into an inescapable situation, either due to unavoidable combat or a lack of physical exit; 2) The post-sewers part of Wasteland is much more linear than the parts before it and doesn't lend itself well to randomization; and 3) post-sewers is boring in my humble opinion and I prefer not to play it without intending to.  Specify `--post-sewers` to list this restriction [\*].
+* *Are not shops.*  Stores, hospitals, and libraries are unaffected by `wlrand`.  This is simply a technical limitation.  Hopefully it will be removed in the future.
+* *Are not intra-transitions.*  That is to say, `wlrand` ignores transitions between locations that are logically connected.  For example, the transition from downtown west to downtown east is an intra-transition.  Another example is the transitions between the various floors of the Needles waste pit.  Specify `--auto-intra` and `--hard-intra` to lift this restriction.
+* *Do not have the same parent.*  In other words, `wlrand` won't replace the Highpool-\>Cave transition with Highpool-\>Workshop.  Both of these transitions have the same parent (Highpool).  This restriction is just to make the game seem more "random".  Specify `--same-parent` to lift this restriction.
+
+[\*] These options will almost certainly produce an unwinnable game.
 
 ## Building
 
@@ -39,7 +51,6 @@ To build, run one of the following invocations:
 make build GOOS=linux   # Linux
 make build GOOS=darwin  # MacOS
 make build GOOS=windows # Windows
-
 ```
 
 This produces a `wlrand` executable in the current directory.
@@ -64,7 +75,7 @@ Please report bugs using the wlrand issue tracker: <https://github.com/badvassal
 
 ## Acknowledgements
 
-Thank you to the authors of [Wasteland: The Definitive Deconstruction](https://wasteland.gamepedia.com/Category:Wasteland:_The_Definitive_Deconstruction) without which this program would not be possible.
+Thank you to the authors of [Wasteland: The Definitive Deconstruction](https://wasteland.gamepedia.com/Category:Wasteland:_The_Definitive_Deconstruction) without whom this program would not be possible.
 
 ## License
 
