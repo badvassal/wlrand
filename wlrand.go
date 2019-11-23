@@ -240,6 +240,8 @@ func cmdRestore(dir string) error {
 		return wlerr.Wrapf(err, "failed to restore game")
 	}
 
+	fmt.Printf("Restored game to pre-randomized state\n")
+
 	return nil
 }
 
