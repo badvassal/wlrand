@@ -9,9 +9,9 @@ import (
 )
 
 type Signature struct {
-	Description string       `json:"description"`
-	Version     string       `json:"version"`
-	Cfg         randomizeCfg `json:"config"`
+	Description string
+	Version     string
+	Cfg         randomizeCfg
 }
 
 func CreateSignatureMSQBlock(cfg randomizeCfg) (*msq.Block, error) {

@@ -114,30 +114,44 @@ func calcOps(pairs []defs.LocPair,
 	return ops, err
 }
 
-// randomize randomly replaces all transitions that meet the criteria specified
-// in the configuration.  On success, the modified GAMEx files are written back
-// to disk.
-func randomize(cfg randomizeCfg) error {
-	blocks1, blocks2, err := wlutil.ReadGames(cfg.Dir)
+// sigString converts a wlrand signature into a user friendly string.
+func sigString(sig *Signature) (string, error) {
+	j, err := json.MarshalIndent(sig, "", "    ")
+	if err != nil {
+		return "", wlerr.Wrapf(err, "failed to marshal signature block")
+	}
+
+	return string(j), nil
+}
+
+// cmdRandomize randomly replaces all transitions that meet the criteria
+// specified in the configuration.  On success, the modified GAMEx files are
+// written back to disk.
+func cmdRandomize(cfg randomizeCfg) error {
+	game0, game1, err := wlutil.ReadGames(cfg.Dir)
 	if err != nil {
 		return err
 	}
 
-	_, sig := FindSignatureMSQBlock(blocks1)
+	blocks0, blocks1, err := wlutil.ParseGames(game0, game1)
+	if err != nil {
+		return err
+	}
+
+	_, sig := FindSignatureMSQBlock(blocks0)
 	if sig != nil {
-		j, err := json.MarshalIndent(sig, "", "    ")
+		s, err := sigString(sig)
 		if err != nil {
 			return err
 		}
 
-		return wlerr.Errorf("this game has already been randomized:\n%s",
-			string(j))
+		return wlerr.Errorf("this game has already been randomized:\n%s", s)
 	}
 
 	fmt.Printf("using seed %d\n", cfg.Seed)
 	rand.Seed(cfg.Seed)
 
-	env, err := wlutil.DecodeGames(blocks1, blocks2)
+	env, err := wlutil.DecodeGames(blocks0, blocks1)
 	if err != nil {
 		return err
 	}
@@ -162,14 +176,68 @@ func randomize(cfg randomizeCfg) error {
 	if err != nil {
 		return err
 	}
-	blocks1 = append(blocks1, *sigBlock)
+	blocks0 = append(blocks0, *sigBlock)
 
-	if err := wlutil.CommitDecodeState(*env, blocks1, blocks2); err != nil {
+	backup0, err := EncodeBackupBlock(0, game0)
+	if err != nil {
+		return err
+	}
+	blocks0 = append(blocks0, *backup0)
+
+	backup1, err := EncodeBackupBlock(1, game1)
+	if err != nil {
+		return err
+	}
+	blocks0 = append(blocks0, *backup1)
+
+	if err := wlutil.CommitDecodeState(*env, blocks0, blocks1); err != nil {
 		return err
 	}
 
-	if err := wlutil.WriteGames(blocks1, blocks2, cfg.Dir); err != nil {
+	if err := wlutil.SerializeAndWriteGames(blocks0, blocks1, cfg.Dir); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// cmdInfo displays properties of a randomized game.
+func cmdInfo(dir string) error {
+	blocks1, _, err := wlutil.ReadAndParseGames(dir)
+	if err != nil {
+		return err
+	}
+
+	_, sig := FindSignatureMSQBlock(blocks1)
+	if sig == nil {
+		fmt.Printf("This game has not been randomized\n")
+		return nil
+	}
+
+	s, err := sigString(sig)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("This game has been randomized with the following options:\n%s\n", s)
+	return nil
+}
+
+// cmdRestore restores a game to its pre-randomized state.
+func cmdRestore(dir string) error {
+	blocks1, _, err := wlutil.ReadAndParseGames(dir)
+	if err != nil {
+		return err
+	}
+
+	backup0, backup1 := FindAndDecodeBackupRecords(blocks1)
+	if backup0 == nil {
+		return wlerr.Errorf(
+			"failed to restore game: game has not been randomized")
+	}
+
+	if err := wlutil.WriteGames(backup0.Data, backup1.Data, dir); err != nil {
+		return wlerr.Wrapf(err, "failed to restore game")
 	}
 
 	return nil
@@ -183,67 +251,108 @@ func main() {
 	app.Version = version.VersionStr()
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:     "path,p",
-			Usage:    "Path of wasteland directory",
-			Required: true,
-		},
-
-		cli.Int64Flag{
-			Name:  "seed,s",
-			Usage: "Seed to initialize RNG with",
-			Value: time.Now().UnixNano(),
-		},
-
-		cli.StringFlag{
 			Name:  "loglevel,l",
 			Usage: "Log level; one of: debug, info, warn, error, panic",
 			Value: "warn",
 		},
-
-		cli.BoolFlag{
-			Name:  "world",
-			Usage: "Consider world map transitions",
+	}
+	app.Commands = []cli.Command{
+		cli.Command{
+			Name:      "rand",
+			Usage:     "Randomizes a Wasteland game",
+			ArgsUsage: "<-p path> [options...]",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:     "path,p",
+					Usage:    "Path of wasteland directory (required)",
+					Required: true,
+				},
+				cli.Int64Flag{
+					Name:  "seed,s",
+					Usage: "Seed to initialize RNG with",
+					Value: time.Now().UnixNano(),
+				},
+				cli.BoolFlag{
+					Name:  "world",
+					Usage: "Consider world map transitions",
+				},
+				cli.BoolFlag{
+					Name:  "auto-intra",
+					Usage: "Consider automatically identified intra transitions",
+				},
+				cli.BoolFlag{
+					Name:  "hard-intra",
+					Usage: "Consider hardcoded intra transitions",
+				},
+				cli.BoolFlag{
+					Name:  "post-sewers",
+					Usage: "Consider post-sewers transitions",
+				},
+				cli.BoolFlag{
+					Name:  "same-parent",
+					Usage: "Allow shuffling of transitions among a common parent",
+				},
+			},
+			Action: func(c *cli.Context) error {
+				return cmdRandomize(randomizeCfg{
+					Dir:  c.String("path"),
+					Seed: c.Int64("seed"),
+					CollectCfg: wlmanip.CollectCfg{
+						KeepWorld:          c.Bool("world"),
+						KeepRelative:       false,
+						KeepShops:          false,
+						KeepDerelict:       false,
+						KeepPrevious:       false,
+						KeepAutoIntra:      c.Bool("auto-intra"),
+						KeepHardcodedIntra: c.Bool("hard-intra"),
+						KeepPostSewers:     c.Bool("post-sewers"),
+					},
+					AllowSameParent: c.Bool("same-parent"),
+				})
+			},
 		},
-		cli.BoolFlag{
-			Name:  "auto-intra",
-			Usage: "Consider automatically identified intra transitions",
+		cli.Command{
+			Name:      "info",
+			Usage:     "Displays properties of a randomized Wasteland game",
+			ArgsUsage: "<-p path>",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:     "path,p",
+					Usage:    "Path of wasteland directory (required)",
+					Required: true,
+				},
+			},
+			Action: func(c *cli.Context) error {
+				dir := c.String("path")
+				return cmdInfo(dir)
+			},
 		},
-		cli.BoolFlag{
-			Name:  "hard-intra",
-			Usage: "Consider hardcoded intra transitions",
-		},
-		cli.BoolFlag{
-			Name:  "post-sewers",
-			Usage: "Consider post-sewers transitions",
-		},
-		cli.BoolFlag{
-			Name:  "same-parent",
-			Usage: "Allow shuffling of transitions among a common parent",
+		cli.Command{
+			Name:      "restore",
+			Usage:     "Restores a Wasteland game to it's pre-randomized state",
+			ArgsUsage: "<-p path>",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:     "path,p",
+					Usage:    "Path of wasteland directory (required)",
+					Required: true,
+				},
+			},
+			Action: func(c *cli.Context) error {
+				dir := c.String("path")
+				return cmdRestore(dir)
+			},
 		},
 	}
 
-	app.Action = func(c *cli.Context) error {
+	app.Before = func(c *cli.Context) error {
 		lvl, err := log.ParseLevel(c.String("loglevel"))
 		if err != nil {
 			return wlerr.Errorf("invalid log level: \"%s\"", c.String("loglevel"))
 		}
 		log.SetLevel(lvl)
 
-		return randomize(randomizeCfg{
-			Dir:  c.String("path"),
-			Seed: c.Int64("seed"),
-			CollectCfg: wlmanip.CollectCfg{
-				KeepWorld:          c.Bool("world"),
-				KeepRelative:       false,
-				KeepShops:          false,
-				KeepDerelict:       false,
-				KeepPrevious:       false,
-				KeepAutoIntra:      c.Bool("auto-intra"),
-				KeepHardcodedIntra: c.Bool("hard-intra"),
-				KeepPostSewers:     c.Bool("post-sewers"),
-			},
-			AllowSameParent: c.Bool("same-parent"),
-		})
+		return nil
 	}
 
 	if err := app.Run(os.Args); err != nil {
