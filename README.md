@@ -4,28 +4,23 @@ https://github.com/badvassal/wlrand
 
 ## Description
 
-`wlrand` is a randomizer for the 1988 DOS game Wasteland.  The current version only randomizes transitions, i.e., the tiles that transport the player from one location to another.  `wlrand` produces a "new game" in the sense that even an experienced player must discover how to reach the various locations in the game through exploration.
-
-## WARNING
-
-`wlrand` irreversibly modifies your Wasteland `GAME1` and `GAME2` files.  It is imperative that you create backups of these files before running `wlrand`!
+`wlrand` is a randomizer for the 1988 DOS game Wasteland.  The current version only randomizes transitions, i.e., the tiles that transport the player from one location to another.  `wlrand` produces a "new game" in the sense that even an experienced player must explore the game to discover its various locations.
 
 ## Quick Start
 
 The below instructions assume wasteland is "installed" at `/usr/local/share/games/wasteland`.  Please adjust accordingly if this assumption is inaccurate.
 
-1. Back up your game files:
+Run the `wlrand rand` comamnd:
 ```
-cp /usr/local/share/games/wasteland/GAME1 /usr/local/share/games/wasteland/backup-GAME1 
-cp /usr/local/share/games/wasteland/GAME2 /usr/local/share/games/wasteland/backup-GAME2 
-```
-
-2. Run the randomizer:
-```
-wlrand -p /usr/local/share/games/wasteland
+wlrand rand -p /usr/local/share/games/wasteland
 ```
 
 Wasteland should now be randomized.  Verify by entering any non-shop location in a city (e.g., Highpool community center).
+
+To restore your game to its pre-randomized state, use `wlrand restore`:
+```
+wlrand restore -p /usr/local/share/games/wasteland
+```
 
 ## Scope
 
@@ -55,17 +50,12 @@ make build GOOS=windows # Windows
 
 This produces a `wlrand` executable in the current directory.
 
-## De-randomize
-
-There is currently no way to reverse the effect of `wlrand`.  The only way to get back to the original state is to restore backups of the `GAME1` and `GAME2` files.
-
 ## Bugs
 
 Please report bugs using the wlrand issue tracker: <https://github.com/badvassal/wlrand/issues>
 
 ## To do
 
-* Automatically back up `GAMEx` files; add a restore command.
 * Randomize loot bags.
 * Randomize shops.
 * Randomize NPCs?
