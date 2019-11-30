@@ -3,8 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"os"
+	"path/filepath"
+	"sort"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -180,13 +183,13 @@ func cmdRandomize(cfg randomizeCfg) error {
 	}
 	bodies0 = append(bodies0, *sigBlock)
 
-	backup0, err := EncodeBackupBlock(0, game0)
+	backup0, err := EncodeBackupBlock("GAME1", game0)
 	if err != nil {
 		return err
 	}
 	bodies0 = append(bodies0, *backup0)
 
-	backup1, err := EncodeBackupBlock(1, game1)
+	backup1, err := EncodeBackupBlock("GAME2", game1)
 	if err != nil {
 		return err
 	}
@@ -234,14 +237,26 @@ func cmdRestore(dir string) error {
 	}
 	bodies0 := wlutil.DescsToBodies(descs0)
 
-	backup0, backup1 := FindAndDecodeBackupRecords(bodies0)
-	if backup0 == nil {
+	rmap := FindAndDecodeBackupRecords(bodies0)
+	if len(rmap) == 0 {
 		return wlerr.Errorf(
 			"failed to restore game: game has not been randomized")
 	}
 
-	if err := wlutil.WriteGames(backup0.Data, backup1.Data, dir); err != nil {
-		return wlerr.Wrapf(err, "failed to restore game")
+	var filenames []string
+	for k, _ := range rmap {
+		filenames = append(filenames, k)
+	}
+	sort.Strings(filenames)
+
+	for _, filename := range filenames {
+		path := filepath.Join(dir, filename)
+		log.Infof("restoring file %s", path)
+
+		r := rmap[filename]
+		if err := ioutil.WriteFile(path, r.Data, 0644); err != nil {
+			return wlerr.Wrapf(err, "failed to restore game")
+		}
 	}
 
 	fmt.Printf("Restored game to pre-randomized state\n")

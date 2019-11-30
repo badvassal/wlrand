@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"io/ioutil"
+	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
 
@@ -21,8 +22,9 @@ import (
 const BackupMagic = "wlrand-backup-v1"
 
 type BackupHdr struct {
-	Magic   string
-	GameIdx int
+	Magic    string
+	Filename string
+	GameIdx  int `json:",omitempty"` // Deprecated; only used if Filename=="".
 }
 
 type BackupRecord struct {
@@ -30,10 +32,10 @@ type BackupRecord struct {
 	Data []byte
 }
 
-func EncodeBackupBlock(gameIdx int, data []byte) (*msq.Body, error) {
+func EncodeBackupBlock(filename string, data []byte) (*msq.Body, error) {
 	hdr := &BackupHdr{
-		Magic:   BackupMagic,
-		GameIdx: gameIdx,
+		Magic:    BackupMagic,
+		Filename: filename,
 	}
 
 	j, err := json.Marshal(hdr)
@@ -84,41 +86,43 @@ func DecodeBackupBlock(b msq.Body) *BackupRecord {
 	}
 }
 
-func FindAndDecodeBackupRecords(bodies []msq.Body) (*BackupRecord, *BackupRecord) {
-	var r0 *BackupRecord
-	var r1 *BackupRecord
-
-	onDup := func(idx int) {
-		log.Errorf("discarding backup record with duplicate idx: %d", idx)
-	}
+func FindAndDecodeBackupRecords(bodies []msq.Body) map[string]*BackupRecord {
+	rmap := map[string]*BackupRecord{}
 
 	for _, b := range bodies {
 		r := DecodeBackupBlock(b)
 		if r != nil {
-			switch r.Hdr.GameIdx {
-			case 0:
-				if r0 != nil {
-					onDup(0)
-				}
-				r0 = r
+			var filename string
+			if r.Hdr.Filename != "" {
+				filename = r.Hdr.Filename
+			} else {
+				// Backwards compatibilty.
+				switch r.Hdr.GameIdx {
+				case 0:
+					filename = "GAME1"
 
-			case 1:
-				if r1 != nil {
-					onDup(1)
-				}
-				r1 = r
+				case 1:
+					filename = "GAME2"
 
-			default:
-				log.Errorf("discarding backup record with bad game idx: "+
-					"have=%d want==0||1", r.Hdr.GameIdx)
+				default:
+					log.Errorf("discarding backup record with no filename and "+
+						"bad game idx: have=%d want==0||1", r.Hdr.GameIdx)
+				}
+			}
+
+			// Only allow files in the same directory.
+			if dir, _ := filepath.Split(filename); dir != "" {
+				log.Errorf("discarding backup record with bad filename: %s",
+					filename)
+			} else if rmap[filename] != nil {
+				log.Errorf(
+					"discarding backup record with duplicate filename: %s",
+					filename)
+			} else {
+				rmap[filename] = r
 			}
 		}
 	}
 
-	if r0 != nil && r1 == nil || r0 == nil && r1 != nil {
-		log.Errorf("discarding backup record: wrong count: have=1 want=2")
-		return nil, nil
-	}
-
-	return r0, r1
+	return rmap
 }
