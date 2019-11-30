@@ -133,12 +133,14 @@ func cmdRandomize(cfg randomizeCfg) error {
 		return err
 	}
 
-	blocks0, blocks1, err := wlutil.ParseGames(game0, game1)
+	descs0, descs1, err := wlutil.ParseGames(game0, game1)
 	if err != nil {
 		return err
 	}
+	bodies0 := wlutil.DescsToBodies(descs0)
+	bodies1 := wlutil.DescsToBodies(descs1)
 
-	_, sig := FindSignatureMSQBlock(blocks0)
+	_, sig := FindSignature(bodies0)
 	if sig != nil {
 		s, err := sigString(sig)
 		if err != nil {
@@ -151,7 +153,7 @@ func cmdRandomize(cfg randomizeCfg) error {
 	fmt.Printf("using seed %d\n", cfg.Seed)
 	rand.Seed(cfg.Seed)
 
-	env, err := wlutil.DecodeGames(blocks0, blocks1)
+	env, err := wlutil.DecodeGames(bodies0, bodies1)
 	if err != nil {
 		return err
 	}
@@ -172,29 +174,29 @@ func cmdRandomize(cfg randomizeCfg) error {
 		wlmanip.ExecTransOp(coll, env, o)
 	}
 
-	sigBlock, err := CreateSignatureMSQBlock(cfg)
+	sigBlock, err := CreateSignature(cfg)
 	if err != nil {
 		return err
 	}
-	blocks0 = append(blocks0, *sigBlock)
+	bodies0 = append(bodies0, *sigBlock)
 
 	backup0, err := EncodeBackupBlock(0, game0)
 	if err != nil {
 		return err
 	}
-	blocks0 = append(blocks0, *backup0)
+	bodies0 = append(bodies0, *backup0)
 
 	backup1, err := EncodeBackupBlock(1, game1)
 	if err != nil {
 		return err
 	}
-	blocks0 = append(blocks0, *backup1)
+	bodies0 = append(bodies0, *backup1)
 
-	if err := wlutil.CommitDecodeState(*env, blocks0, blocks1); err != nil {
+	if err := wlutil.CommitDecodeState(*env, bodies0, bodies1); err != nil {
 		return err
 	}
 
-	if err := wlutil.SerializeAndWriteGames(blocks0, blocks1, cfg.Dir); err != nil {
+	if err := wlutil.SerializeAndWriteGames(bodies0, bodies1, cfg.Dir); err != nil {
 		return err
 	}
 
@@ -203,12 +205,13 @@ func cmdRandomize(cfg randomizeCfg) error {
 
 // cmdInfo displays properties of a randomized game.
 func cmdInfo(dir string) error {
-	blocks1, _, err := wlutil.ReadAndParseGames(dir)
+	descs0, _, err := wlutil.ReadAndParseGames(dir)
 	if err != nil {
 		return err
 	}
+	bodies0 := wlutil.DescsToBodies(descs0)
 
-	_, sig := FindSignatureMSQBlock(blocks1)
+	_, sig := FindSignature(bodies0)
 	if sig == nil {
 		fmt.Printf("This game has not been randomized\n")
 		return nil
@@ -225,12 +228,13 @@ func cmdInfo(dir string) error {
 
 // cmdRestore restores a game to its pre-randomized state.
 func cmdRestore(dir string) error {
-	blocks1, _, err := wlutil.ReadAndParseGames(dir)
+	descs0, _, err := wlutil.ReadAndParseGames(dir)
 	if err != nil {
 		return err
 	}
+	bodies0 := wlutil.DescsToBodies(descs0)
 
-	backup0, backup1 := FindAndDecodeBackupRecords(blocks1)
+	backup0, backup1 := FindAndDecodeBackupRecords(bodies0)
 	if backup0 == nil {
 		return wlerr.Errorf(
 			"failed to restore game: game has not been randomized")

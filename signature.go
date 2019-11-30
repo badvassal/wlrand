@@ -14,7 +14,7 @@ type Signature struct {
 	Cfg         randomizeCfg
 }
 
-func CreateSignatureMSQBlock(cfg randomizeCfg) (*msq.Block, error) {
+func CreateSignature(cfg randomizeCfg) (*msq.Body, error) {
 	sig := Signature{
 		Description: "Randomized by wlrand",
 		Version:     version.VersionStr(),
@@ -26,15 +26,15 @@ func CreateSignatureMSQBlock(cfg randomizeCfg) (*msq.Block, error) {
 		return nil, wlerr.Errorf("failed to marshal signature to JSON")
 	}
 
-	return &msq.Block{
+	return &msq.Body{
 		EncSection:   j,
 		PlainSection: nil,
 	}, nil
 }
 
-func FindSignatureMSQBlock(blocks []msq.Block) (int, *Signature) {
+func FindSignature(bodies []msq.Body) (int, *Signature) {
 	sig := &Signature{}
-	for i, b := range blocks {
+	for i, b := range bodies {
 		if err := json.Unmarshal(b.EncSection, sig); err == nil {
 			return i, sig
 		}

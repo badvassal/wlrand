@@ -12,7 +12,7 @@ import (
 	"github.com/badvassal/wllib/msq"
 )
 
-// A backup block has the following structure:
+// A backup block body has the following structure:
 // EncSection:
 //     BackupHdr (JSON-encoded)
 // PlainSection
@@ -30,7 +30,7 @@ type BackupRecord struct {
 	Data []byte
 }
 
-func EncodeBackupBlock(gameIdx int, data []byte) (*msq.Block, error) {
+func EncodeBackupBlock(gameIdx int, data []byte) (*msq.Body, error) {
 	hdr := &BackupHdr{
 		Magic:   BackupMagic,
 		GameIdx: gameIdx,
@@ -50,13 +50,13 @@ func EncodeBackupBlock(gameIdx int, data []byte) (*msq.Block, error) {
 		return nil, wlerr.Wrapf(err, "failed to compress backup data")
 	}
 
-	return &msq.Block{
+	return &msq.Body{
 		EncSection:   []byte(j),
 		PlainSection: b.Bytes(),
 	}, nil
 }
 
-func DecodeBackupBlock(b msq.Block) *BackupRecord {
+func DecodeBackupBlock(b msq.Body) *BackupRecord {
 	hdr := &BackupHdr{}
 	if err := json.Unmarshal(b.EncSection, hdr); err != nil {
 		return nil
@@ -84,7 +84,7 @@ func DecodeBackupBlock(b msq.Block) *BackupRecord {
 	}
 }
 
-func FindAndDecodeBackupRecords(blocks []msq.Block) (*BackupRecord, *BackupRecord) {
+func FindAndDecodeBackupRecords(bodies []msq.Body) (*BackupRecord, *BackupRecord) {
 	var r0 *BackupRecord
 	var r1 *BackupRecord
 
@@ -92,7 +92,7 @@ func FindAndDecodeBackupRecords(blocks []msq.Block) (*BackupRecord, *BackupRecor
 		log.Errorf("discarding backup record with duplicate idx: %d", idx)
 	}
 
-	for _, b := range blocks {
+	for _, b := range bodies {
 		r := DecodeBackupBlock(b)
 		if r != nil {
 			switch r.Hdr.GameIdx {
