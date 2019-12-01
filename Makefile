@@ -1,6 +1,6 @@
 PKG := github.com/badvassal/wlrand/version
 VERSION:="0.0.9"
-DATE := $(shell date +%F,%R)
+DATE := $(shell date --utc +%F,%R)
 COMMIT := $(shell git rev-parse --short HEAD)
 ifneq ($(shell git status --porcelain),)
     COMMIT_SUFFIX := "-dirty"
