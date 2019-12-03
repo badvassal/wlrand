@@ -13,16 +13,12 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 
-	"github.com/badvassal/wllib/defs"
 	"github.com/badvassal/wllib/gen/wlerr"
 	"github.com/badvassal/wllib/wlutil"
 	"github.com/badvassal/wlmanip"
+	"github.com/badvassal/wlrand/level"
+	"github.com/badvassal/wlrand/npc"
 	"github.com/badvassal/wlrand/version"
-)
-
-const (
-	maxChoices           = 10
-	maxRandomizeAttempts = 100
 )
 
 var (
@@ -31,90 +27,17 @@ var (
 )
 
 type randomizeCfg struct {
-	Dir             string
-	Seed            int64
-	CollectCfg      wlmanip.CollectCfg
-	AllowSameParent bool
+	Dir           string
+	Seed          int64
+	RandomizeMaps bool
+	RandomizeNPCs bool
+	LevelCfg      level.LevelCfg
+	NPCCfg        npc.NPCCfg
 }
 
 func onErr(err error) {
 	fmt.Fprintf(os.Stderr, "Error: %s\n", err.Error())
 	os.Exit(2)
-}
-
-// chooseSrc selects a source transition to replace a destination with.
-func chooseSrc(dst defs.LocPair, srcList []defs.LocPair, allowSameParent bool) (int, error) {
-	srcIsOK := func(src defs.LocPair) bool {
-		if src.From != dst.From {
-			// Different sources is always OK.
-			return true
-		}
-
-		if src.To == dst.To {
-			// Identical pairs (no change) is never OK.
-			return false
-		}
-
-		return allowSameParent
-	}
-
-	// Keep trying random sources until we find a suitable source or we exceed
-	// the max attempts.
-	for i := 0; i < maxChoices; i++ {
-		srcIdx := rand.Intn(len(srcList))
-		if srcIsOK(srcList[srcIdx]) {
-			return srcIdx, nil
-		}
-	}
-
-	return -1, wlerr.Errorf(
-		"chooseSrc() iterated %d times and couldn't find a suitable source: "+
-			"dst=%s,%s", maxChoices,
-		wlmanip.LocationString(dst.From),
-		wlmanip.LocationString(dst.To))
-}
-
-// calcOps calculates a random set of transition operations to apply to the
-// full set of MSQ blocks.
-func calcOps(pairs []defs.LocPair,
-	cfg randomizeCfg) ([]wlmanip.TransOp, error) {
-
-	// Attempts to calculate a new transition operation for each transition.
-	// This fails if it gets into a state where all possible operations violate
-	// the restrictions specified in the configuration.
-	calcOnce := func() ([]wlmanip.TransOp, error) {
-		srcs := make([]defs.LocPair, len(pairs))
-		copy(srcs, pairs)
-
-		ops := make([]wlmanip.TransOp, len(pairs))
-		for i, p := range pairs {
-			srcIdx, err := chooseSrc(p, srcs, cfg.AllowSameParent)
-			if err != nil {
-				return nil, wlerr.Wrapf(err, "failed to calculate operations")
-			}
-
-			ops[i] = wlmanip.TransOp{
-				A: srcs[srcIdx],
-				B: p,
-			}
-
-			srcs = append(srcs[:srcIdx], srcs[srcIdx+1:]...)
-		}
-
-		return ops, nil
-	}
-
-	// This is pretty lame.  Restart the randomize operation if we can't
-	// resolve the remaining transitions without violating the configuration.
-	var ops []wlmanip.TransOp
-	var err error
-	for i := 0; i < maxRandomizeAttempts; i++ {
-		ops, err = calcOnce()
-		if err == nil {
-			break
-		}
-	}
-	return ops, err
 }
 
 // sigString converts a wlrand signature into a user friendly string.
@@ -156,25 +79,23 @@ func cmdRandomize(cfg randomizeCfg) error {
 	fmt.Printf("using seed %d\n", cfg.Seed)
 	rand.Seed(cfg.Seed)
 
-	env, err := wlutil.DecodeGames(bodies0, bodies1)
+	state, err := wlutil.DecodeGames(bodies0, bodies1)
 	if err != nil {
 		return err
 	}
 
-	coll, err := wlmanip.Collect(*env, cfg.CollectCfg)
-	if err != nil {
-		return err
+	if cfg.RandomizeMaps {
+		err := level.RandomizeMaps(state, cfg.LevelCfg)
+		if err != nil {
+			return err
+		}
 	}
 
-	pairs := coll.FilteredRoundTrips()
-
-	ops, err := calcOps(pairs, cfg)
-	if err != nil {
-		return err
-	}
-
-	for _, o := range ops {
-		wlmanip.ExecTransOp(coll, env, o)
+	if cfg.RandomizeNPCs {
+		err := npc.RandomizeNPCs(state, cfg.NPCCfg)
+		if err != nil {
+			return err
+		}
 	}
 
 	sigBlock, err := CreateSignature(cfg)
@@ -195,7 +116,7 @@ func cmdRandomize(cfg randomizeCfg) error {
 	}
 	bodies0 = append(bodies0, *backup1)
 
-	if err := wlutil.CommitDecodeState(*env, bodies0, bodies1); err != nil {
+	if err := wlutil.CommitDecodeState(*state, bodies0, bodies1); err != nil {
 		return err
 	}
 
@@ -294,6 +215,14 @@ func main() {
 					Value: time.Now().UnixNano(),
 				},
 				cli.BoolFlag{
+					Name:  "no-map",
+					Usage: "Do not perform map (transition) randomization",
+				},
+				cli.BoolFlag{
+					Name:  "no-npc",
+					Usage: "Do not perform NPC randomization",
+				},
+				cli.BoolFlag{
 					Name:  "world",
 					Usage: "Consider world map transitions",
 				},
@@ -313,22 +242,76 @@ func main() {
 					Name:  "same-parent",
 					Usage: "Allow shuffling of transitions among a common parent",
 				},
+				cli.IntFlag{
+					Name:  "npc-level-min",
+					Usage: "Minimum NPC experience level",
+					Value: 1,
+				},
+				cli.IntFlag{
+					Name:  "npc-level-max",
+					Usage: "Maximum NPC experience level",
+					Value: 10,
+				},
+				cli.IntFlag{
+					Name:  "npc-attr-min",
+					Usage: "Minimum NPC extra attribute points",
+					Value: 0,
+				},
+				cli.IntFlag{
+					Name:  "npc-attr-max",
+					Usage: "Maximum NPC extra attribute points",
+					Value: 0,
+				},
+				cli.IntFlag{
+					Name:  "npc-skill-min",
+					Usage: "Minimum NPC extra skill points",
+					Value: 0,
+				},
+				cli.IntFlag{
+					Name:  "npc-skill-max",
+					Usage: "Maximum NPC extra skill points",
+					Value: 0,
+				},
+				cli.IntFlag{
+					Name:  "npc-mastery-min",
+					Usage: "Minimum NPC mastery points per level beyond 1",
+					Value: 3,
+				},
+				cli.IntFlag{
+					Name:  "npc-mastery-max",
+					Usage: "Maximum NPC mastery points per level beyond 1",
+					Value: 5,
+				},
 			},
 			Action: func(c *cli.Context) error {
 				return cmdRandomize(randomizeCfg{
-					Dir:  c.String("path"),
-					Seed: c.Int64("seed"),
-					CollectCfg: wlmanip.CollectCfg{
-						KeepWorld:          c.Bool("world"),
-						KeepRelative:       false,
-						KeepShops:          false,
-						KeepDerelict:       false,
-						KeepPrevious:       false,
-						KeepAutoIntra:      c.Bool("auto-intra"),
-						KeepHardcodedIntra: c.Bool("hard-intra"),
-						KeepPostSewers:     c.Bool("post-sewers"),
+					Dir:           c.String("path"),
+					Seed:          c.Int64("seed"),
+					RandomizeMaps: !c.Bool("no-map"),
+					RandomizeNPCs: !c.Bool("no-npc"),
+					LevelCfg: level.LevelCfg{
+						CollectCfg: wlmanip.CollectCfg{
+							KeepWorld:          c.Bool("world"),
+							KeepRelative:       false,
+							KeepShops:          false,
+							KeepDerelict:       false,
+							KeepPrevious:       false,
+							KeepAutoIntra:      c.Bool("auto-intra"),
+							KeepHardcodedIntra: c.Bool("hard-intra"),
+							KeepPostSewers:     c.Bool("post-sewers"),
+						},
+						AllowSameParent: c.Bool("same-parent"),
 					},
-					AllowSameParent: c.Bool("same-parent"),
+					NPCCfg: npc.NPCCfg{
+						LevelMin:     c.Int("npc-level-min"),
+						LevelMax:     c.Int("npc-level-max"),
+						AttributeMin: c.Int("npc-attr-min"),
+						AttributeMax: c.Int("npc-attr-max"),
+						SkillMin:     c.Int("npc-skill-min"),
+						SkillMax:     c.Int("npc-skill-max"),
+						MasteryMin:   c.Int("npc-mastery-min"),
+						MasteryMax:   c.Int("npc-mastery-max"),
+					},
 				})
 			},
 		},

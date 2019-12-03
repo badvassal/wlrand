@@ -4,7 +4,12 @@ https://github.com/badvassal/wlrand
 
 ## Description
 
-`wlrand` is a randomizer for the 1988 DOS game Wasteland.  The current version only randomizes transitions, i.e., the tiles that transport the player from one location to another.  `wlrand` produces a "new game" in the sense that even an experienced player must explore the game to discover its various locations.
+`wlrand` is a randomizer for the 1988 DOS game Wasteland.  The current version randomizes two aspects of Wasteland:
+
+1. Transitions, i.e., the tiles that transport the player from one location to another
+2. NPCs
+
+`wlrand` produces a "new game" in the sense that even an experienced player must explore the game to discover its various locations.
 
 ## Quick Start
 
@@ -24,6 +29,8 @@ wlrand restore -p /usr/local/share/games/wasteland
 
 ## Scope
 
+### Transitions
+
 In its default mode, `wlrand` randomizes transitions that meet the following criteria:
 
 * *Don't involve the world map.*  Transitions involving the world map, i.e., transitions into and out of cities, are left unmodified.  Specify `--world` to lift this restriction [\*].
@@ -33,6 +40,15 @@ In its default mode, `wlrand` randomizes transitions that meet the following cri
 * *Do not have the same parent.*  In other words, `wlrand` won't replace the Highpool-\>Cave transition with Highpool-\>Workshop.  Both of these transitions have the same parent (Highpool).  This restriction is just to make the game seem more "random".  Specify `--same-parent` to lift this restriction.
 
 [\*] These options will almost certainly produce an unwinnable game.
+
+### NPCs
+
+All NPCs get randomized.  `wlrand` randomizes the following aspects of each NPC:
+
+1. Attributes
+2. Skill list
+
+Inventories are currently untouched.
 
 ## Building
 
@@ -50,17 +66,53 @@ make build GOOS=windows # Windows
 
 This produces a `wlrand` executable in the current directory.
 
+## NPC Details
+
+### Attributes
+
+`wlrand` uses the following procedure when randomizing an NPC's attributes.
+
+1. Randomly select an "attribute class" from a predefined set.  An attribute class assigns weights to each of the seven attributes.  
+2. Roll 4d6 for each attribute, discarding the die with the lowest value.  These sums are assigned according to the attribute class weights.  The highest value is assigned to the attribute with the greatest weight.
+3. Distribute extra attribute points.  The NPC gets two extra points for each experience level greater than one.  An extra point can be applied to any of the seven attributes, but it is more likely to be assigned to attributes with greater weights.
+
+The `--npc-attr-min` and `--npc-attr-max` command line options can be used to specify a range of extra attribute points.  `wlrand` selects a random number from within this range for each NPC.  The selected value is the number of extra attribute points the NPC gets.
+
+### Skills
+
+After calculating attributes, `wlrand` assigns skills.  The program uses the following procedure to distribute skill points:
+
+1. Randomly select a "skill class" from a predefined set.  A skill class assigns weights to each of the 35 skills in the game.
+2. Start with X skill points, where X is equal to the NPC's IQ.
+3. Distribute skill points, favoring those skills that the skill class assigns a greater weight to.  The program follows the in-game rules when distributing skill points:
+    1. Every skill has a minimum IQ requirement.
+    2. The cost of a skill doubles each time it is improved.
+4. If `wlrand` is unable to distribute any points, these leftovers are preserved as spendable skill points (`skp`).
+
+The `--npc-skill-min` and `--npc-skill-max` command line options can be used to specify a range of extra skill points.  `wlrand` selects a random number from within this range for each NPC.  The selected value is the number of extra skill points the NPC gets.
+
+### Mastery
+
+This phase is meant to simulate the natural improving of skills through use.  The number of "mastery points" is based on the NPC's experience level.  These points are used to improve the skills that were acquired in the "skills" phase.  It costs X mastery points to improve a skill to level X.  For example, it would take four mastery points to improve the Doctor skill from level three to four.  During this phase, skills are selected at random with no regard to the NPC's skill class.
+
+The `--npc-mastery-min` and `--npc-mastery-max` command line options specify the range of mastery points that each NPC gets per level beyond level one.
+
+### Etc
+
+* Experience level is randomly selected from a range (1 to 10 by default).  This range can be configured with the `--npc-level-min` and `--npc-level-max` command line options.
+* Max/con is calculated using this (made up) formula: `20 + 2d8 + 2 * (explvl - 1)`.
+* The `npc` flag is cleared for all NPCs.  This allows the player to control who they attack and their shooting style, and it prevents them from disobeying any orders.
+
 ## Bugs
 
 Please report bugs using the wlrand issue tracker: <https://github.com/badvassal/wlrand/issues>
 
 ## To do
 
-* Randomize loot bags.
-* Randomize shops.
-* Randomize NPCs?
 * Produce a winnable game when `--world` is specified.
 * Make the Spade's Casino basement escapable without a shovel or explosives.
+* Randomize shops.
+* Randomize loot bags.
 * Consider making the Base Cochise levels easily escapable.
 
 ## Acknowledgements
