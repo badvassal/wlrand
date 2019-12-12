@@ -15,7 +15,7 @@ https://github.com/badvassal/wlrand
 
 The below instructions assume wasteland is "installed" at `/usr/local/share/games/wasteland`.  Please adjust accordingly if this assumption is inaccurate.
 
-Run the `wlrand rand` comamnd:
+Run the `wlrand rand` command:
 ```
 wlrand rand -p /usr/local/share/games/wasteland
 ```
