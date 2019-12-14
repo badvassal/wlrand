@@ -22,23 +22,16 @@ const (
 	//skillClassIDScientist
 )
 
-// ArchetypeDef is an Archetype in a form that is easier to specify in code.
-// It must be converted to a proper Archetype before use.
-type ArchetypeDef struct {
-	Name    string
-	Weights []float64
-}
-
 // Archetype is a named object that distributes values among a weighted set.
 // This is used to implement the two types of character class (attribute class
 // and skill class)
 type Archetype struct {
-	Name string
-	Dist Distribution
+	Name    string
+	Weights []float64
 }
 
-var attrClassDefs = []ArchetypeDef{
-	attrClassIDAthlete: ArchetypeDef{
+var attrClasses = []Archetype{
+	attrClassIDAthlete: Archetype{
 		Name: "Athlete",
 		Weights: []float64{
 			attrIdxStrength:  5.0,
@@ -51,7 +44,7 @@ var attrClassDefs = []ArchetypeDef{
 		},
 	},
 
-	attrClassIDScholar: ArchetypeDef{
+	attrClassIDScholar: Archetype{
 		Name: "Scholar",
 		Weights: []float64{
 			attrIdxStrength:  1.0,
@@ -64,7 +57,7 @@ var attrClassDefs = []ArchetypeDef{
 		},
 	},
 
-	attrClassIDWorker: ArchetypeDef{
+	attrClassIDWorker: Archetype{
 		Name: "Worker",
 		Weights: []float64{
 			attrIdxStrength:  2.0,
@@ -77,7 +70,7 @@ var attrClassDefs = []ArchetypeDef{
 		},
 	},
 
-	attrClassIDLeader: ArchetypeDef{
+	attrClassIDLeader: Archetype{
 		Name: "Leader",
 		Weights: []float64{
 			attrIdxStrength:  1.0,
@@ -91,8 +84,8 @@ var attrClassDefs = []ArchetypeDef{
 	},
 }
 
-var skillClassDefs = []ArchetypeDef{
-	skillClassIDJack: ArchetypeDef{
+var skillClasses = []Archetype{
+	skillClassIDJack: Archetype{
 		Name: "Jack",
 		Weights: []float64{
 			defs.SkillIDBrawling:        1.0,

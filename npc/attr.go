@@ -4,7 +4,6 @@ import (
 	"sort"
 
 	"github.com/badvassal/wllib/decode"
-	"github.com/badvassal/wllib/gen/wlerr"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -62,7 +61,9 @@ func rollAttr() int {
 	return rolls[1] + rolls[2] + rolls[3]
 }
 
-func (ar *AttrResult) distributeRolls(d Distribution) {
+func (ar *AttrResult) distributeRolls(ac Archetype) {
+	dist := NewDistribution(ac.Weights)
+
 	rolls := make([]int, 7)
 	for i, _ := range rolls {
 		rolls[i] = rollAttr()
@@ -70,22 +71,18 @@ func (ar *AttrResult) distributeRolls(d Distribution) {
 	sort.Ints(rolls)
 
 	ptrs := ar.Ptrs()
-	indices := d.SortedIndices()
+	indices := dist.SortedIndices()
 
 	for i, idx := range indices {
 		*ptrs[idx] = rolls[i]
 	}
 }
 
-func (ar *AttrResult) distributeExtra(d Distribution, points int) error {
-	if len(d.Threshes) != 7 {
-		return wlerr.Errorf(
-			"attr distribution has wrong size: have=%d want=%d",
-			len(d.Threshes), 7)
-	}
+func (ar *AttrResult) distributeExtra(ac Archetype, points int) error {
+	dist := NewDistribution(ac.Weights)
 
 	ptrs := ar.Ptrs()
-	vals := d.Generate(points)
+	vals := dist.Generate(points)
 	for i, v := range vals {
 		total := *ptrs[i] + v
 
@@ -122,18 +119,16 @@ func calcAttrExtraPoints(name string, level int, cfg NPCCfg) int {
 func CalcAttrs(name string, level int, cfg NPCCfg) (*AttrResult, error) {
 	ar := &AttrResult{}
 
-	attrClass := selectAttrClass()
-	ar.ClassName = attrClass.Name
-	log.Debugf("selected attr class \"%s\" for NPC \"%s\"",
-		attrClass.Name, name)
+	ac := selectAttrClass()
+	ar.ClassName = ac.Name
+	log.Debugf("selected attr class \"%s\" for NPC \"%s\"", ac.Name, name)
 
-	ar.distributeRolls(attrClass.Dist)
+	ar.distributeRolls(ac)
 
 	points := calcAttrExtraPoints(name, level, cfg)
 
-	log.Debugf("distributing %d extra attribute points for %s:",
-		points, name)
-	err := ar.distributeExtra(attrClass.Dist, points)
+	log.Debugf("distributing %d extra attribute points for %s:", points, name)
+	err := ar.distributeExtra(ac, points)
 	if err != nil {
 		return nil, err
 	}

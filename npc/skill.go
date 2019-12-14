@@ -1,8 +1,6 @@
 package npc
 
 import (
-	"math/rand"
-
 	log "github.com/sirupsen/logrus"
 
 	"github.com/badvassal/wllib/decode"
@@ -93,7 +91,7 @@ func availableSkillIDs(iq int, points int, ss SkillSet) []int {
 	return ids
 }
 
-func generateSkillSet(iq int, d Distribution, points int) (*SkillSet, int) {
+func generateSkillSet(iq int, sc Archetype, points int) (*SkillSet, int) {
 	rem := points
 	ss := NewSkillSet()
 
@@ -108,7 +106,14 @@ func generateSkillSet(iq int, d Distribution, points int) (*SkillSet, int) {
 			break
 		}
 
-		id := ids[rand.Intn(len(ids))]
+		weights := make([]float64, len(sc.Weights))
+		for _, id := range ids {
+			weights[id] = sc.Weights[id]
+		}
+
+		dist := NewDistribution(weights)
+
+		id := dist.Next()
 		skill := defs.Skills[id]
 
 		cost := skillCost(skill, ss.Levels[id])
@@ -122,16 +127,17 @@ func generateSkillSet(iq int, d Distribution, points int) (*SkillSet, int) {
 }
 
 func CalcSkills(name string, level int, iq int, cfg NPCCfg) *SkillResult {
+	sr := &SkillResult{}
+
+	sc := selectSkillClass()
+	sr.ClassName = sc.Name
+	log.Debugf("selected skill class \"%s\" for NPC \"%s\"", sc.Name, name)
+
 	points := calcSkillPoints(name, iq, cfg)
-	skillClass := selectSkillClass()
 
 	log.Debugf("distributing %d skill points for %s:", points, name)
 
-	sr := &SkillResult{
-		ClassName: skillClass.Name,
-	}
-
-	ss, rem := generateSkillSet(iq, skillClass.Dist, points)
+	ss, rem := generateSkillSet(iq, sc, points)
 	for id, lvl := range ss.Levels {
 		if lvl > 0 {
 			log.Debugf("    %s: %d", defs.SkillNames[id], lvl)
