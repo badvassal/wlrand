@@ -4,7 +4,6 @@ import (
 	"math/rand"
 	"sort"
 
-	"github.com/badvassal/wllib/gen"
 	"github.com/badvassal/wllib/gen/wlerr"
 	"github.com/mkideal/pkg/debug"
 )
@@ -26,12 +25,21 @@ func NewDistribution(weights []float64) *Distribution {
 	cur := 0.0
 	for i, r := range weights {
 		cur += r / total
+
+		// Sometimes cur exceeds 1.0 due to floating point weirdness.
+		if cur > 1.0 {
+			cur = 1.0
+		}
+
 		d.Threshes[i] = cur
 	}
+
 	d.Threshes[len(weights)-1] = 1.0
 
 	err := d.Validate()
-	gen.Assert(err == nil)
+	if err != nil {
+		panic(err.Error())
+	}
 
 	return d
 }
