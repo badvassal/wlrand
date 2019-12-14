@@ -1,12 +1,19 @@
 package npc
 
 import (
+	"math/rand"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/badvassal/wllib/decode"
 	"github.com/badvassal/wllib/defs"
 	"github.com/badvassal/wllib/gen"
 )
+
+type SkillClass struct {
+	Name    string
+	Weights []float64 // 35 weights; one for each skill.
+}
 
 type SkillSet struct {
 	// Always all 35 skills.  Index=ID.
@@ -57,13 +64,11 @@ func skillCost(skill defs.Skill, curLevel int) int {
 }
 
 func availableSkillIDs(iq int, points int, ss SkillSet) []int {
-	var ids []int
-
 	if ss.NumLearned() >= decode.CharNumSkills {
 		return nil
 	}
 
-	isAvail := func(id int) bool {
+	return filterIDs(len(defs.Skills), func(id int) bool {
 		s := defs.Skills[id]
 
 		if s.Cost == 0 {
@@ -80,18 +85,10 @@ func availableSkillIDs(iq int, points int, ss SkillSet) []int {
 		}
 
 		return true
-	}
-
-	for id, _ := range defs.Skills {
-		if isAvail(id) {
-			ids = append(ids, id)
-		}
-	}
-
-	return ids
+	})
 }
 
-func generateSkillSet(iq int, sc Archetype, points int) (*SkillSet, int) {
+func generateSkillSet(iq int, sc SkillClass, points int) (*SkillSet, int) {
 	rem := points
 	ss := NewSkillSet()
 
@@ -131,6 +128,11 @@ func generateSkillSet(iq int, sc Archetype, points int) (*SkillSet, int) {
 	return ss, rem
 }
 
+func selectSkillClass() SkillClass {
+	id := rand.Intn(len(skillClasses))
+	return skillClasses[id]
+}
+
 func CalcSkills(name string, level int, iq int, cfg NPCCfg) *SkillResult {
 	sr := &SkillResult{}
 
@@ -142,7 +144,7 @@ func CalcSkills(name string, level int, iq int, cfg NPCCfg) *SkillResult {
 
 	log.Debugf("distributing %d skill points for %s:", points, name)
 
-	ss, rem := generateSkillSet(iq, sc, points)
+	ss, rem := generateSkillSet(iq, sc, points, cfg)
 	for id, lvl := range ss.Levels {
 		if lvl > 0 {
 			log.Debugf("    %s: %d", defs.SkillNames[id], lvl)

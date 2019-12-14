@@ -1,6 +1,7 @@
 package npc
 
 import (
+	"math/rand"
 	"sort"
 
 	"github.com/badvassal/wllib/decode"
@@ -25,6 +26,11 @@ var attrNames = []string{
 	attrIdxAgility:   "agility",
 	attrIdxDexterity: "dexterity",
 	attrIdxCharisma:  "charisma",
+}
+
+type AttrClass struct {
+	Name    string
+	Weights []float64 // 7 weights; one for each attribute.
 }
 
 type AttrResult struct {
@@ -61,7 +67,7 @@ func rollAttr() int {
 	return rolls[1] + rolls[2] + rolls[3]
 }
 
-func (ar *AttrResult) distributeRolls(ac Archetype) {
+func (ar *AttrResult) distributeRolls(ac AttrClass) {
 	dist := NewDistribution(ac.Weights)
 
 	rolls := make([]int, 7)
@@ -78,7 +84,7 @@ func (ar *AttrResult) distributeRolls(ac Archetype) {
 	}
 }
 
-func (ar *AttrResult) distributeExtra(ac Archetype, points int) error {
+func (ar *AttrResult) distributeExtra(ac AttrClass, points int) error {
 	dist := NewDistribution(ac.Weights)
 
 	ptrs := ar.Ptrs()
@@ -114,6 +120,11 @@ func calcAttrExtraPoints(name string, level int, cfg NPCCfg) int {
 		l, r, points)
 
 	return points
+}
+
+func selectAttrClass() AttrClass {
+	idx := rand.Intn(len(attrClasses))
+	return attrClasses[idx]
 }
 
 func CalcAttrs(name string, level int, cfg NPCCfg) (*AttrResult, error) {

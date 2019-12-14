@@ -1,10 +1,6 @@
 package npc
 
-import (
-	"math/rand"
-
-	"github.com/badvassal/wllib/defs"
-)
+import "github.com/badvassal/wllib/defs"
 
 const (
 	attrClassIDAthlete int = iota
@@ -21,16 +17,8 @@ const (
 	skillClassIDMedic
 )
 
-// Archetype is a named object that distributes values among a weighted set.
-// This is used to implement the two types of character class (attribute class
-// and skill class)
-type Archetype struct {
-	Name    string
-	Weights []float64
-}
-
-var attrClasses = []Archetype{
-	attrClassIDAthlete: Archetype{
+var attrClasses = []AttrClass{
+	attrClassIDAthlete: AttrClass{
 		Name: "Athlete",
 		Weights: []float64{
 			attrIdxStrength:  5.0,
@@ -43,7 +31,7 @@ var attrClasses = []Archetype{
 		},
 	},
 
-	attrClassIDScholar: Archetype{
+	attrClassIDScholar: AttrClass{
 		Name: "Scholar",
 		Weights: []float64{
 			attrIdxStrength:  1.0,
@@ -56,7 +44,7 @@ var attrClasses = []Archetype{
 		},
 	},
 
-	attrClassIDWorker: Archetype{
+	attrClassIDWorker: AttrClass{
 		Name: "Worker",
 		Weights: []float64{
 			attrIdxStrength:  2.0,
@@ -69,7 +57,7 @@ var attrClasses = []Archetype{
 		},
 	},
 
-	attrClassIDLeader: Archetype{
+	attrClassIDLeader: AttrClass{
 		Name: "Leader",
 		Weights: []float64{
 			attrIdxStrength:  1.0,
@@ -83,8 +71,8 @@ var attrClasses = []Archetype{
 	},
 }
 
-var skillClasses = []Archetype{
-	skillClassIDJack: Archetype{
+var skillClasses = []SkillClass{
+	skillClassIDJack: SkillClass{
 		Name: "Jack",
 		Weights: []float64{
 			defs.SkillIDBrawling:        1.0,
@@ -125,7 +113,7 @@ var skillClasses = []Archetype{
 		},
 	},
 
-	skillClassIDBrawler: Archetype{
+	skillClassIDBrawler: SkillClass{
 		Name: "Brawler",
 		Weights: []float64{
 			defs.SkillIDBrawling:        16.0,
@@ -166,7 +154,7 @@ var skillClasses = []Archetype{
 		},
 	},
 
-	skillClassIDMarksman: Archetype{
+	skillClassIDMarksman: SkillClass{
 		Name: "Marksman",
 		Weights: []float64{
 			defs.SkillIDBrawling:        1.0,
@@ -207,7 +195,7 @@ var skillClasses = []Archetype{
 		},
 	},
 
-	skillClassIDMedic: Archetype{
+	skillClassIDMedic: SkillClass{
 		Name: "Medic",
 		Weights: []float64{
 			defs.SkillIDBrawling:        1.0,
@@ -247,14 +235,4 @@ var skillClasses = []Archetype{
 			defs.SkillIDCyborgTech:      1.0,
 		},
 	},
-}
-
-func selectAttrClass() Archetype {
-	idx := rand.Intn(len(attrClasses))
-	return attrClasses[idx]
-}
-
-func selectSkillClass() Archetype {
-	idx := rand.Intn(len(skillClasses))
-	return skillClasses[idx]
 }
