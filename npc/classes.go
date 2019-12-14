@@ -15,6 +15,7 @@ const (
 	skillClassIDBrawler
 	skillClassIDMarksman
 	skillClassIDMedic
+	skillClassIDDoctor
 )
 
 var attrClasses = []AttrClass{
@@ -235,6 +236,48 @@ var skillClasses = []SkillClass{
 			defs.SkillIDToasterRepair:   1.0,
 			defs.SkillIDDoctor:          0.0,
 			defs.SkillIDCloneTech:       1.0,
+			defs.SkillIDEnergyWeapon:    1.0,
+			defs.SkillIDCyborgTech:      1.0,
+		},
+	},
+
+	skillClassIDDoctor: SkillClass{
+		Name:  "Doctor",
+		MinIQ: 21,
+		Weights: []float64{
+			defs.SkillIDBrawling:        1.0,
+			defs.SkillIDClimb:           1.0,
+			defs.SkillIDClipPistol:      1.0,
+			defs.SkillIDKnifeFight:      1.0,
+			defs.SkillIDPugilism:        1.0,
+			defs.SkillIDRifle:           1.0,
+			defs.SkillIDSwim:            1.0,
+			defs.SkillIDKnifeThrow:      1.0,
+			defs.SkillIDPerception:      4.0,
+			defs.SkillIDAssaultRifle:    1.0,
+			defs.SkillIDATWeapon:        1.0,
+			defs.SkillIDSMG:             1.0,
+			defs.SkillIDAcrobat:         1.0,
+			defs.SkillIDGambling:        1.0,
+			defs.SkillIDPicklock:        1.0,
+			defs.SkillIDSilentMove:      1.0,
+			defs.SkillIDCombatShooting:  0.0,
+			defs.SkillIDConfidence:      1.0,
+			defs.SkillIDSleightOfHand:   1.0,
+			defs.SkillIDDemolitions:     1.0,
+			defs.SkillIDForgery:         1.0,
+			defs.SkillIDAlarmDisarm:     1.0,
+			defs.SkillIDBureaucracy:     1.0,
+			defs.SkillIDBombDisarm:      1.0,
+			defs.SkillIDMedic:           0.0,
+			defs.SkillIDSafecrack:       1.0,
+			defs.SkillIDCryptology:      1.0,
+			defs.SkillIDMetallurgy:      1.0,
+			defs.SkillIDHelicopterPilot: 1.0,
+			defs.SkillIDElectronics:     1.0,
+			defs.SkillIDToasterRepair:   1.0,
+			defs.SkillIDDoctor:          32.0,
+			defs.SkillIDCloneTech:       8.0,
 			defs.SkillIDEnergyWeapon:    1.0,
 			defs.SkillIDCyborgTech:      1.0,
 		},
