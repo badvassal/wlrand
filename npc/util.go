@@ -25,3 +25,15 @@ func randRange(min int, max int) int {
 
 	return x
 }
+
+func filterIDs(numIDs int, shouldKeep func(id int) bool) []int {
+	ids := make([]int, 0, numIDs)
+
+	for i := 0; i < numIDs; i++ {
+		if shouldKeep(i) {
+			ids = append(ids, i)
+		}
+	}
+
+	return ids
+}
