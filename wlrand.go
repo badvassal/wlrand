@@ -282,6 +282,11 @@ func main() {
 					Usage: "Maximum NPC mastery points per level beyond 1",
 					Value: 5,
 				},
+				cli.IntFlag{
+					Name:  "npc-learn-level-max",
+					Usage: "Maximum NPC skill level during the learning phase",
+					Value: 2,
+				},
 			},
 			Action: func(c *cli.Context) error {
 				return cmdRandomize(randomizeCfg{
@@ -303,14 +308,15 @@ func main() {
 						AllowSameParent: c.Bool("same-parent"),
 					},
 					NPCCfg: npc.NPCCfg{
-						LevelMin:     c.Int("npc-level-min"),
-						LevelMax:     c.Int("npc-level-max"),
-						AttributeMin: c.Int("npc-attr-min"),
-						AttributeMax: c.Int("npc-attr-max"),
-						SkillMin:     c.Int("npc-skill-min"),
-						SkillMax:     c.Int("npc-skill-max"),
-						MasteryMin:   c.Int("npc-mastery-min"),
-						MasteryMax:   c.Int("npc-mastery-max"),
+						LevelMin:      c.Int("npc-level-min"),
+						LevelMax:      c.Int("npc-level-max"),
+						AttributeMin:  c.Int("npc-attr-min"),
+						AttributeMax:  c.Int("npc-attr-max"),
+						SkillMin:      c.Int("npc-skill-min"),
+						SkillMax:      c.Int("npc-skill-max"),
+						MasteryMin:    c.Int("npc-mastery-min"),
+						MasteryMax:    c.Int("npc-mastery-max"),
+						LearnLevelMax: c.Int("npc-learn-level-max"),
 					},
 				})
 			},

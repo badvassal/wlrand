@@ -20,6 +20,7 @@ type NPCCfg struct {
 	MasteryPerLevel int
 	MasteryMin      int
 	MasteryMax      int
+	LearnLevelMax   int
 }
 
 func rankStr(attrName string, skillName string, level int) string {

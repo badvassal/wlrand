@@ -64,7 +64,7 @@ func skillCost(skill defs.Skill, curLevel int) int {
 	return cost
 }
 
-func availableSkillIDs(iq int, points int, ss SkillSet) []int {
+func availableSkillIDs(iq int, points int, ss SkillSet, cfg NPCCfg) []int {
 	if ss.NumLearned() >= decode.CharNumSkills {
 		return nil
 	}
@@ -85,11 +85,15 @@ func availableSkillIDs(iq int, points int, ss SkillSet) []int {
 			return false
 		}
 
+		if ss.Levels[id] >= cfg.LearnLevelMax {
+			return false
+		}
+
 		return true
 	})
 }
 
-func generateSkillSet(iq int, sc SkillClass, points int) (*SkillSet, int) {
+func generateSkillSet(iq int, sc SkillClass, points int, cfg NPCCfg) (*SkillSet, int) {
 	rem := points
 	ss := NewSkillSet()
 
@@ -98,7 +102,7 @@ func generateSkillSet(iq int, sc SkillClass, points int) (*SkillSet, int) {
 			break
 		}
 
-		ids := availableSkillIDs(iq, rem, *ss)
+		ids := availableSkillIDs(iq, rem, *ss, cfg)
 		if len(ids) == 0 {
 			log.Debugf("failed to distribute remaining %d skill points", rem)
 			break
