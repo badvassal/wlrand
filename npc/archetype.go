@@ -104,7 +104,7 @@ var skillClasses = []Archetype{
 			defs.SkillIDGambling:        1.0,
 			defs.SkillIDPicklock:        1.0,
 			defs.SkillIDSilentMove:      1.0,
-			defs.SkillIDCombatShooting:  1.0,
+			defs.SkillIDCombatShooting:  0.0,
 			defs.SkillIDConfidence:      1.0,
 			defs.SkillIDSleightOfHand:   1.0,
 			defs.SkillIDDemolitions:     1.0,
