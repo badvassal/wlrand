@@ -109,6 +109,11 @@ func generateSkillSet(iq int, sc Archetype, points int) (*SkillSet, int) {
 		weights := make([]float64, len(sc.Weights))
 		for _, id := range ids {
 			weights[id] = sc.Weights[id]
+
+			// Halve a skill's weight each time it is improved.
+			for i := 0; i < ss.Levels[id]; i++ {
+				weights[id] /= 2.0
+			}
 		}
 
 		dist := NewDistribution(weights)
