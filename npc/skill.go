@@ -12,6 +12,7 @@ import (
 
 type SkillClass struct {
 	Name    string
+	MinIQ   int
 	Weights []float64 // 35 weights; one for each skill.
 }
 
@@ -128,15 +129,19 @@ func generateSkillSet(iq int, sc SkillClass, points int) (*SkillSet, int) {
 	return ss, rem
 }
 
-func selectSkillClass() SkillClass {
-	id := rand.Intn(len(skillClasses))
+func selectSkillClass(iq int) SkillClass {
+	ids := filterIDs(len(skillClasses), func(id int) bool {
+		return iq >= skillClasses[id].MinIQ
+	})
+
+	id := ids[rand.Intn(len(ids))]
 	return skillClasses[id]
 }
 
 func CalcSkills(name string, level int, iq int, cfg NPCCfg) *SkillResult {
 	sr := &SkillResult{}
 
-	sc := selectSkillClass()
+	sc := selectSkillClass(iq)
 	sr.ClassName = sc.Name
 	log.Debugf("selected skill class \"%s\" for NPC \"%s\"", sc.Name, name)
 

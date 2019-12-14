@@ -73,7 +73,8 @@ var attrClasses = []AttrClass{
 
 var skillClasses = []SkillClass{
 	skillClassIDJack: SkillClass{
-		Name: "Jack",
+		Name:  "Jack",
+		MinIQ: 3,
 		Weights: []float64{
 			defs.SkillIDBrawling:        1.0,
 			defs.SkillIDClimb:           1.0,
@@ -114,7 +115,8 @@ var skillClasses = []SkillClass{
 	},
 
 	skillClassIDBrawler: SkillClass{
-		Name: "Brawler",
+		Name:  "Brawler",
+		MinIQ: 3,
 		Weights: []float64{
 			defs.SkillIDBrawling:        16.0,
 			defs.SkillIDClimb:           4.0,
@@ -155,7 +157,8 @@ var skillClasses = []SkillClass{
 	},
 
 	skillClassIDMarksman: SkillClass{
-		Name: "Marksman",
+		Name:  "Marksman",
+		MinIQ: 9,
 		Weights: []float64{
 			defs.SkillIDBrawling:        1.0,
 			defs.SkillIDClimb:           1.0,
@@ -196,7 +199,8 @@ var skillClasses = []SkillClass{
 	},
 
 	skillClassIDMedic: SkillClass{
-		Name: "Medic",
+		Name:  "Medic",
+		MinIQ: 15,
 		Weights: []float64{
 			defs.SkillIDBrawling:        1.0,
 			defs.SkillIDClimb:           1.0,
