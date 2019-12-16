@@ -1,4 +1,4 @@
-package npc
+package skill
 
 import (
 	"math/rand"
@@ -8,12 +8,22 @@ import (
 	"github.com/badvassal/wllib/decode"
 	"github.com/badvassal/wllib/defs"
 	"github.com/badvassal/wllib/gen"
+	"github.com/badvassal/wlrand/npc/dist"
+	"github.com/badvassal/wlrand/npc/npcdefs"
+	"github.com/badvassal/wlrand/npc/util"
 )
 
+// Multiply a skill weight by this each time the skill is improved.
+const skillWeightReduction = 0.5
+
 type SkillClass struct {
-	Name    string
-	MinIQ   int
-	Weights []float64 // 35 weights; one for each skill.
+	Name        string
+	MinIQ       int
+	ArmorIDs    []int
+	MaxArmorPPL float64 // Max armor points per level.
+	MinCashPPL  int
+	MaxCashPPL  int
+	Weights     []float64 // 35 weights; one for each skill.
 }
 
 type SkillSet struct {
@@ -21,8 +31,15 @@ type SkillSet struct {
 	Levels []int
 }
 
+type SkillParams struct {
+	Name  string
+	Level int
+	IQ    int
+	Class SkillClass
+	Cfg   npcdefs.NPCCfg
+}
+
 type SkillResult struct {
-	ClassName    string
 	Skills       []decode.CharSkill
 	ExcessPoints int
 }
@@ -44,8 +61,8 @@ func (ss *SkillSet) NumLearned() int {
 	return total
 }
 
-func calcSkillPoints(name string, iq int, cfg NPCCfg) int {
-	r := randRange(cfg.SkillMin, cfg.SkillMax)
+func calcSkillPoints(name string, iq int, cfg npcdefs.NPCCfg) int {
+	r := util.RandRange(cfg.SkillMin, cfg.SkillMax)
 	points := iq + r
 
 	log.Debugf("%s gets %d skill points: "+
@@ -64,12 +81,12 @@ func skillCost(skill defs.Skill, curLevel int) int {
 	return cost
 }
 
-func availableSkillIDs(iq int, points int, ss SkillSet, cfg NPCCfg) []int {
+func availableSkillIDs(iq int, points int, ss SkillSet, cfg npcdefs.NPCCfg) []int {
 	if ss.NumLearned() >= decode.CharNumSkills {
 		return nil
 	}
 
-	return filterIDs(len(defs.Skills), func(id int) bool {
+	return gen.FilterIDs(len(defs.Skills), func(id int) bool {
 		s := defs.Skills[id]
 
 		if s.Cost == 0 {
@@ -93,7 +110,7 @@ func availableSkillIDs(iq int, points int, ss SkillSet, cfg NPCCfg) []int {
 	})
 }
 
-func generateSkillSet(iq int, sc SkillClass, points int, cfg NPCCfg) (*SkillSet, int) {
+func generateSkillSet(iq int, sc SkillClass, points int, cfg npcdefs.NPCCfg) (*SkillSet, int) {
 	rem := points
 	ss := NewSkillSet()
 
@@ -112,15 +129,15 @@ func generateSkillSet(iq int, sc SkillClass, points int, cfg NPCCfg) (*SkillSet,
 		for _, id := range ids {
 			weights[id] = sc.Weights[id]
 
-			// Halve a skill's weight each time it is improved.
+			// Reduce a skill's weight each time it is improved.
 			for i := 0; i < ss.Levels[id]; i++ {
-				weights[id] /= 2.0
+				weights[id] *= skillWeightReduction
 			}
 		}
 
-		dist := NewDistribution(weights)
+		d := dist.NewDistribution(weights)
 
-		id := dist.Next()
+		id := d.Next()
 		skill := defs.Skills[id]
 
 		cost := skillCost(skill, ss.Levels[id])
@@ -133,27 +150,20 @@ func generateSkillSet(iq int, sc SkillClass, points int, cfg NPCCfg) (*SkillSet,
 	return ss, rem
 }
 
-func selectSkillClass(iq int) SkillClass {
-	ids := filterIDs(len(skillClasses), func(id int) bool {
-		return iq >= skillClasses[id].MinIQ
-	})
-
-	id := ids[rand.Intn(len(ids))]
-	return skillClasses[id]
+func SelectSkillClass() SkillClass {
+	id := rand.Intn(len(SkillClasses))
+	return SkillClasses[id]
 }
 
-func CalcSkills(name string, level int, iq int, cfg NPCCfg) *SkillResult {
+// CalcSkills calculates an NPC's set of skills.
+func CalcSkills(sp SkillParams) *SkillResult {
 	sr := &SkillResult{}
 
-	sc := selectSkillClass(iq)
-	sr.ClassName = sc.Name
-	log.Debugf("selected skill class \"%s\" for NPC \"%s\"", sc.Name, name)
+	points := calcSkillPoints(sp.Name, sp.IQ, sp.Cfg)
 
-	points := calcSkillPoints(name, iq, cfg)
+	log.Debugf("distributing %d skill points for %s:", points, sp.Name)
 
-	log.Debugf("distributing %d skill points for %s:", points, name)
-
-	ss, rem := generateSkillSet(iq, sc, points, cfg)
+	ss, rem := generateSkillSet(sp.IQ, sp.Class, points, sp.Cfg)
 	for id, lvl := range ss.Levels {
 		if lvl > 0 {
 			log.Debugf("    %s: %d", defs.SkillNames[id], lvl)
@@ -169,6 +179,7 @@ func CalcSkills(name string, level int, iq int, cfg NPCCfg) *SkillResult {
 	return sr
 }
 
+// Replace overwrites an NPC's skills with the results of a skill calculation.
 func (sr *SkillResult) Replace(ch *decode.Character) {
 	// Zero out old skill levels.
 	for i, _ := range ch.Skills {

@@ -1,4 +1,4 @@
-package npc
+package dist
 
 import (
 	"math/rand"

@@ -8,20 +8,12 @@ import (
 
 	"github.com/badvassal/wllib/decode"
 	"github.com/badvassal/wllib/gen/wlerr"
+	"github.com/badvassal/wlrand/npc/attr"
+	"github.com/badvassal/wlrand/npc/inventory"
+	"github.com/badvassal/wlrand/npc/npcdefs"
+	"github.com/badvassal/wlrand/npc/skill"
+	"github.com/badvassal/wlrand/npc/util"
 )
-
-type NPCCfg struct {
-	AttributeMin    int
-	AttributeMax    int
-	LevelMin        int
-	LevelMax        int
-	SkillMin        int
-	SkillMax        int
-	MasteryPerLevel int
-	MasteryMin      int
-	MasteryMax      int
-	LearnLevelMax   int
-}
 
 func rankStr(attrName string, skillName string, level int) string {
 	first3 := func(s string) string {
@@ -45,26 +37,65 @@ func calcExp(level int) int {
 
 func calcMaxcon(level int) int {
 	// This formula is just made up.
-	return 20 + dice(2, 8) + 2*(level-1)
+	return 20 + util.Dice(2, 8) + 2*(level-1)
 }
 
-func fillNPC(ch *decode.Character, cfg NPCCfg) error {
-	ch.Level = randRange(cfg.LevelMin, cfg.LevelMax)
+func fillNPC(ch *decode.Character, cfg npcdefs.NPCCfg) error {
+	onErr := wlerr.MakeWrapper("failed to fill NPC " + ch.Name)
+
+	ch.Level = util.RandRange(cfg.LevelMin, cfg.LevelMax)
 	ch.Experience = calcExp(ch.Level)
 
-	ar, err := CalcAttrs(ch.Name, ch.Level, cfg)
-	if err != nil {
-		return wlerr.Wrapf(err, "failed to fill NPC %s", ch.Name)
+	sc := skill.SelectSkillClass()
+
+	ap := attr.AttrParams{
+		Name:  ch.Name,
+		Level: ch.Level,
+		MinIQ: sc.MinIQ,
+		Cfg:   cfg,
 	}
+	ar, err := attr.CalcAttrs(ap)
+	if err != nil {
+		return onErr(err, "")
+	}
+
+	log.Debugf("selected level %d %s,%s for NPC \"%s\"",
+		ch.Level, ar.Class.Name, sc.Name, ch.Name)
+
+	log.Debugf("attributes for \"%s\":\n%s", ch.Name, ar.Text())
+
 	ar.Replace(ch)
 
-	sr := CalcSkills(ch.Name, ch.Level, ch.IQ, cfg)
+	sp := skill.SkillParams{
+		Name:  ch.Name,
+		Level: ch.Level,
+		IQ:    ch.IQ,
+		Class: sc,
+		Cfg:   cfg,
+	}
+	sr := skill.CalcSkills(sp)
 	sr.Replace(ch)
 
-	masteryPoints := calcMasteryPoints(*ch, cfg)
-	distributeMasteryPoints(ch, masteryPoints)
+	masteryPoints := skill.CalcMasteryPoints(*ch, cfg)
+	skill.DistributeMasteryPoints(ch, masteryPoints)
 
-	ch.Rank = rankStr(ar.ClassName, sr.ClassName, ch.Level)
+	ip := inventory.InvParams{
+		Name:       ch.Name,
+		Level:      ch.Level,
+		SkillClass: sc,
+		Skills:     ch.Skills,
+		Cfg:        cfg,
+	}
+	ir := inventory.CalcInventory(ip)
+	log.Debugf("inventory for %s:\n%s", ch.Name,
+		inventory.InventoryResultString(*ir))
+
+	err = ir.Replace(ch)
+	if err != nil {
+		return onErr(err, "")
+	}
+
+	ch.Rank = rankStr(ar.Class.Name, sc.Name, ch.Level)
 
 	ch.Maxcon = calcMaxcon(ch.Level)
 	ch.Con = ch.Maxcon
@@ -72,7 +103,7 @@ func fillNPC(ch *decode.Character, cfg NPCCfg) error {
 	ch.IsNPC = false
 
 	log.Infof("randomized npc: %s, level %d, %s-%s",
-		ch.Name, ch.Level, ar.ClassName, sr.ClassName)
+		ch.Name, ch.Level, ar.Class.Name, sc.Name)
 
 	text, _ := json.MarshalIndent(ch, "", "    ")
 	log.Debugf("randomized npc \"%s\":\n%s", ch.Name, text)
@@ -80,7 +111,7 @@ func fillNPC(ch *decode.Character, cfg NPCCfg) error {
 	return nil
 }
 
-func RandomizeNPCs(state *decode.DecodeState, cfg NPCCfg) error {
+func RandomizeNPCs(state *decode.DecodeState, cfg npcdefs.NPCCfg) error {
 	for _, dbs := range state.Blocks {
 		for _, db := range dbs {
 			for i, _ := range db.NPCTable.NPCs {

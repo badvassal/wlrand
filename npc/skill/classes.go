@@ -1,81 +1,33 @@
-package npc
+package skill
 
 import "github.com/badvassal/wllib/defs"
 
 const (
-	attrClassIDAthlete int = iota
-	attrClassIDScholar
-	attrClassIDWorker
-	attrClassIDLeader
-	attrClassIDCount
+	SkillClassIDJack int = iota
+	SkillClassIDBrawler
+	SkillClassIDMarksman
+	SkillClassIDMedic
+	SkillClassIDDoctor
+	SkillClassIDRogue
+	SkillClassIDScientist
 )
 
-const (
-	skillClassIDJack int = iota
-	skillClassIDBrawler
-	skillClassIDMarksman
-	skillClassIDMedic
-	skillClassIDDoctor
-)
-
-var attrClasses = []AttrClass{
-	attrClassIDAthlete: AttrClass{
-		Name: "Athlete",
-		Weights: []float64{
-			attrIdxStrength:  5.0,
-			attrIdxIQ:        1.0,
-			attrIdxLuck:      1.0,
-			attrIdxSpeed:     3.0,
-			attrIdxAgility:   2.0,
-			attrIdxDexterity: 1.0,
-			attrIdxCharisma:  1.0,
+var SkillClasses = []SkillClass{
+	SkillClassIDJack: SkillClass{
+		Name:        "Jack",
+		MinIQ:       3,
+		MaxArmorPPL: 3.0,
+		MinCashPPL:  0,
+		MaxCashPPL:  100,
+		ArmorIDs: []int{
+			defs.ArmorIDNone,
+			defs.ArmorIDRobe,
+			defs.ArmorIDLeatherJacket,
+			defs.ArmorIDBulletProofShirt,
+			defs.ArmorIDKevlarVest,
+			defs.ArmorIDRadSuit,
+			defs.ArmorIDKevlarSuit,
 		},
-	},
-
-	attrClassIDScholar: AttrClass{
-		Name: "Scholar",
-		Weights: []float64{
-			attrIdxStrength:  1.0,
-			attrIdxIQ:        4.0,
-			attrIdxLuck:      1.0,
-			attrIdxSpeed:     1.0,
-			attrIdxAgility:   1.0,
-			attrIdxDexterity: 1.0,
-			attrIdxCharisma:  1.0,
-		},
-	},
-
-	attrClassIDWorker: AttrClass{
-		Name: "Worker",
-		Weights: []float64{
-			attrIdxStrength:  2.0,
-			attrIdxIQ:        2.0,
-			attrIdxLuck:      1.0,
-			attrIdxSpeed:     1.0,
-			attrIdxAgility:   2.0,
-			attrIdxDexterity: 3.0,
-			attrIdxCharisma:  1.0,
-		},
-	},
-
-	attrClassIDLeader: AttrClass{
-		Name: "Leader",
-		Weights: []float64{
-			attrIdxStrength:  1.0,
-			attrIdxIQ:        2.0,
-			attrIdxLuck:      2.0,
-			attrIdxSpeed:     1.0,
-			attrIdxAgility:   1.0,
-			attrIdxDexterity: 1.0,
-			attrIdxCharisma:  5.0,
-		},
-	},
-}
-
-var skillClasses = []SkillClass{
-	skillClassIDJack: SkillClass{
-		Name:  "Jack",
-		MinIQ: 3,
 		Weights: []float64{
 			defs.SkillIDBrawling:        1.0,
 			defs.SkillIDClimb:           1.0,
@@ -115,11 +67,22 @@ var skillClasses = []SkillClass{
 		},
 	},
 
-	skillClassIDBrawler: SkillClass{
-		Name:  "Brawler",
-		MinIQ: 3,
+	SkillClassIDBrawler: SkillClass{
+		Name:        "Brawler",
+		MinIQ:       3,
+		MaxArmorPPL: 7.0,
+		MinCashPPL:  0,
+		MaxCashPPL:  100,
+		ArmorIDs: []int{
+			defs.ArmorIDNone,
+			defs.ArmorIDLeatherJacket,
+			defs.ArmorIDBulletProofShirt,
+			defs.ArmorIDKevlarVest,
+			defs.ArmorIDRadSuit,
+			defs.ArmorIDKevlarSuit,
+		},
 		Weights: []float64{
-			defs.SkillIDBrawling:        16.0,
+			defs.SkillIDBrawling:        32.0,
 			defs.SkillIDClimb:           4.0,
 			defs.SkillIDClipPistol:      1.0,
 			defs.SkillIDKnifeFight:      16.0,
@@ -157,9 +120,20 @@ var skillClasses = []SkillClass{
 		},
 	},
 
-	skillClassIDMarksman: SkillClass{
-		Name:  "Marksman",
-		MinIQ: 9,
+	SkillClassIDMarksman: SkillClass{
+		Name:        "Marksman",
+		MinIQ:       9,
+		MaxArmorPPL: 6.0,
+		MinCashPPL:  0,
+		MaxCashPPL:  100,
+		ArmorIDs: []int{
+			defs.ArmorIDNone,
+			defs.ArmorIDLeatherJacket,
+			defs.ArmorIDBulletProofShirt,
+			defs.ArmorIDKevlarVest,
+			defs.ArmorIDRadSuit,
+			defs.ArmorIDKevlarSuit,
+		},
 		Weights: []float64{
 			defs.SkillIDBrawling:        1.0,
 			defs.SkillIDClimb:           1.0,
@@ -199,9 +173,19 @@ var skillClasses = []SkillClass{
 		},
 	},
 
-	skillClassIDMedic: SkillClass{
-		Name:  "Medic",
-		MinIQ: 15,
+	SkillClassIDMedic: SkillClass{
+		Name:        "Medic",
+		MinIQ:       15,
+		MaxArmorPPL: 3.0,
+		MinCashPPL:  100,
+		MaxCashPPL:  300,
+		ArmorIDs: []int{
+			defs.ArmorIDNone,
+			defs.ArmorIDRobe,
+			defs.ArmorIDLeatherJacket,
+			defs.ArmorIDBulletProofShirt,
+			defs.ArmorIDKevlarVest,
+		},
 		Weights: []float64{
 			defs.SkillIDBrawling:        1.0,
 			defs.SkillIDClimb:           1.0,
@@ -241,9 +225,16 @@ var skillClasses = []SkillClass{
 		},
 	},
 
-	skillClassIDDoctor: SkillClass{
-		Name:  "Doctor",
-		MinIQ: 21,
+	SkillClassIDDoctor: SkillClass{
+		Name:        "Doctor",
+		MinIQ:       21,
+		MaxArmorPPL: 2.0,
+		MinCashPPL:  400,
+		MaxCashPPL:  500,
+		ArmorIDs: []int{
+			defs.ArmorIDNone,
+			defs.ArmorIDRobe,
+		},
 		Weights: []float64{
 			defs.SkillIDBrawling:        1.0,
 			defs.SkillIDClimb:           1.0,
@@ -280,6 +271,108 @@ var skillClasses = []SkillClass{
 			defs.SkillIDCloneTech:       8.0,
 			defs.SkillIDEnergyWeapon:    1.0,
 			defs.SkillIDCyborgTech:      1.0,
+		},
+	},
+
+	SkillClassIDRogue: SkillClass{
+		Name:        "Rogue",
+		MinIQ:       15,
+		MaxArmorPPL: 3.0,
+		MinCashPPL:  0,
+		MaxCashPPL:  500,
+		ArmorIDs: []int{
+			defs.ArmorIDNone,
+			defs.ArmorIDLeatherJacket,
+			defs.ArmorIDBulletProofShirt,
+			defs.ArmorIDKevlarVest,
+			defs.ArmorIDRadSuit,
+			defs.ArmorIDKevlarSuit,
+		},
+		Weights: []float64{
+			defs.SkillIDBrawling:        1.0,
+			defs.SkillIDClimb:           1.0,
+			defs.SkillIDClipPistol:      1.0,
+			defs.SkillIDKnifeFight:      4.0,
+			defs.SkillIDPugilism:        1.0,
+			defs.SkillIDRifle:           1.0,
+			defs.SkillIDSwim:            1.0,
+			defs.SkillIDKnifeThrow:      4.0,
+			defs.SkillIDPerception:      16.0,
+			defs.SkillIDAssaultRifle:    1.0,
+			defs.SkillIDATWeapon:        1.0,
+			defs.SkillIDSMG:             1.0,
+			defs.SkillIDAcrobat:         8.0,
+			defs.SkillIDGambling:        1.0,
+			defs.SkillIDPicklock:        16.0,
+			defs.SkillIDSilentMove:      16.0,
+			defs.SkillIDCombatShooting:  0.0,
+			defs.SkillIDConfidence:      1.0,
+			defs.SkillIDSleightOfHand:   16.0,
+			defs.SkillIDDemolitions:     1.0,
+			defs.SkillIDForgery:         16.0,
+			defs.SkillIDAlarmDisarm:     16.0,
+			defs.SkillIDBureaucracy:     1.0,
+			defs.SkillIDBombDisarm:      16.0,
+			defs.SkillIDMedic:           1.0,
+			defs.SkillIDSafecrack:       16.0,
+			defs.SkillIDCryptology:      1.0,
+			defs.SkillIDMetallurgy:      1.0,
+			defs.SkillIDHelicopterPilot: 1.0,
+			defs.SkillIDElectronics:     1.0,
+			defs.SkillIDToasterRepair:   1.0,
+			defs.SkillIDDoctor:          1.0,
+			defs.SkillIDCloneTech:       1.0,
+			defs.SkillIDEnergyWeapon:    1.0,
+			defs.SkillIDCyborgTech:      1.0,
+		},
+	},
+	SkillClassIDScientist: SkillClass{
+		Name:        "Scientist",
+		MinIQ:       24,
+		MaxArmorPPL: 1.0,
+		MinCashPPL:  0,
+		MaxCashPPL:  100,
+		ArmorIDs: []int{
+			defs.ArmorIDNone,
+			defs.ArmorIDRobe,
+			defs.ArmorIDLeatherJacket,
+		},
+		Weights: []float64{
+			defs.SkillIDBrawling:        1.0,
+			defs.SkillIDClimb:           1.0,
+			defs.SkillIDClipPistol:      1.0,
+			defs.SkillIDKnifeFight:      1.0,
+			defs.SkillIDPugilism:        1.0,
+			defs.SkillIDRifle:           1.0,
+			defs.SkillIDSwim:            1.0,
+			defs.SkillIDKnifeThrow:      1.0,
+			defs.SkillIDPerception:      8.0,
+			defs.SkillIDAssaultRifle:    1.0,
+			defs.SkillIDATWeapon:        1.0,
+			defs.SkillIDSMG:             1.0,
+			defs.SkillIDAcrobat:         1.0,
+			defs.SkillIDGambling:        1.0,
+			defs.SkillIDPicklock:        1.0,
+			defs.SkillIDSilentMove:      1.0,
+			defs.SkillIDCombatShooting:  0.0,
+			defs.SkillIDConfidence:      1.0,
+			defs.SkillIDSleightOfHand:   1.0,
+			defs.SkillIDDemolitions:     1.0,
+			defs.SkillIDForgery:         1.0,
+			defs.SkillIDAlarmDisarm:     1.0,
+			defs.SkillIDBureaucracy:     1.0,
+			defs.SkillIDBombDisarm:      1.0,
+			defs.SkillIDMedic:           1.0,
+			defs.SkillIDSafecrack:       1.0,
+			defs.SkillIDCryptology:      8.0,
+			defs.SkillIDMetallurgy:      8.0,
+			defs.SkillIDHelicopterPilot: 1.0,
+			defs.SkillIDElectronics:     32.0,
+			defs.SkillIDToasterRepair:   32.0,
+			defs.SkillIDDoctor:          1.0,
+			defs.SkillIDCloneTech:       32.0,
+			defs.SkillIDEnergyWeapon:    32.0,
+			defs.SkillIDCyborgTech:      32.0,
 		},
 	},
 }

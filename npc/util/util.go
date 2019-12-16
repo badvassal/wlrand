@@ -1,9 +1,13 @@
-package npc
+package util
 
-import "math/rand"
+import (
+	"math/rand"
+
+	"github.com/badvassal/wllib/decode"
+)
 
 // dice rolls xDy and returns the sum.
-func dice(count int, sides int) int {
+func Dice(count int, sides int) int {
 	total := 0
 
 	for i := 0; i < count; i++ {
@@ -15,7 +19,7 @@ func dice(count int, sides int) int {
 
 // randRange calculates a random number within the specified bounds
 // (inclusive).
-func randRange(min int, max int) int {
+func RandRange(min int, max int) int {
 	x := min
 
 	delta := max - min
@@ -26,14 +30,12 @@ func randRange(min int, max int) int {
 	return x
 }
 
-func filterIDs(numIDs int, shouldKeep func(id int) bool) []int {
-	ids := make([]int, 0, numIDs)
-
-	for i := 0; i < numIDs; i++ {
-		if shouldKeep(i) {
-			ids = append(ids, i)
+func CharacterNumSkills(ch decode.Character) int {
+	for i, s := range ch.Skills {
+		if s.Level == 0 {
+			return i
 		}
 	}
 
-	return ids
+	return len(ch.Skills)
 }

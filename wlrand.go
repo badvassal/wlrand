@@ -18,6 +18,7 @@ import (
 	"github.com/badvassal/wlmanip"
 	"github.com/badvassal/wlrand/level"
 	"github.com/badvassal/wlrand/npc"
+	"github.com/badvassal/wlrand/npc/npcdefs"
 	"github.com/badvassal/wlrand/version"
 )
 
@@ -32,7 +33,7 @@ type randomizeCfg struct {
 	RandomizeMaps bool
 	RandomizeNPCs bool
 	LevelCfg      level.LevelCfg
-	NPCCfg        npc.NPCCfg
+	NPCCfg        npcdefs.NPCCfg
 }
 
 func onErr(err error) {
@@ -254,13 +255,13 @@ func main() {
 				},
 				cli.IntFlag{
 					Name:  "npc-attr-min",
-					Usage: "Minimum NPC extra attribute points",
-					Value: 0,
+					Usage: "Minimum NPC attribute points",
+					Value: 84,
 				},
 				cli.IntFlag{
 					Name:  "npc-attr-max",
-					Usage: "Maximum NPC extra attribute points",
-					Value: 0,
+					Usage: "Maximum NPC attribute points",
+					Value: 84,
 				},
 				cli.IntFlag{
 					Name:  "npc-skill-min",
@@ -275,17 +276,47 @@ func main() {
 				cli.IntFlag{
 					Name:  "npc-mastery-min",
 					Usage: "Minimum NPC mastery points per level beyond 1",
-					Value: 3,
+					Value: 4,
 				},
 				cli.IntFlag{
 					Name:  "npc-mastery-max",
 					Usage: "Maximum NPC mastery points per level beyond 1",
-					Value: 5,
+					Value: 6,
 				},
 				cli.IntFlag{
 					Name:  "npc-learn-level-max",
 					Usage: "Maximum NPC skill level during the learning phase",
 					Value: 2,
+				},
+				cli.Float64Flag{
+					Name:  "npc-weapon-ppl-min",
+					Usage: "Minimum NPC weapon points per skill level",
+					Value: 2.0,
+				},
+				cli.Float64Flag{
+					Name:  "npc-weapon-ppl-max",
+					Usage: "Maximum NPC weapon points per skill level",
+					Value: 10.0,
+				},
+				cli.IntFlag{
+					Name:  "npc-weapon-clips-min",
+					Usage: "Minimum NPC weapon clips per skill level",
+					Value: 2,
+				},
+				cli.IntFlag{
+					Name:  "npc-weapon-clips-max",
+					Usage: "Maximum NPC weapon clips per skill level",
+					Value: 8,
+				},
+				cli.IntFlag{
+					Name:  "npc-weapon-count-min",
+					Usage: "Minimum NPC one-time weapon count per skill level",
+					Value: 3,
+				},
+				cli.IntFlag{
+					Name:  "npc-weapon-count-max",
+					Usage: "Maximum NPC one-time weapon clips per skill level",
+					Value: 6,
 				},
 			},
 			Action: func(c *cli.Context) error {
@@ -307,16 +338,22 @@ func main() {
 						},
 						AllowSameParent: c.Bool("same-parent"),
 					},
-					NPCCfg: npc.NPCCfg{
-						LevelMin:      c.Int("npc-level-min"),
-						LevelMax:      c.Int("npc-level-max"),
-						AttributeMin:  c.Int("npc-attr-min"),
-						AttributeMax:  c.Int("npc-attr-max"),
-						SkillMin:      c.Int("npc-skill-min"),
-						SkillMax:      c.Int("npc-skill-max"),
-						MasteryMin:    c.Int("npc-mastery-min"),
-						MasteryMax:    c.Int("npc-mastery-max"),
-						LearnLevelMax: c.Int("npc-learn-level-max"),
+					NPCCfg: npcdefs.NPCCfg{
+						LevelMin:       c.Int("npc-level-min"),
+						LevelMax:       c.Int("npc-level-max"),
+						AttributeMin:   c.Int("npc-attr-min"),
+						AttributeMax:   c.Int("npc-attr-max"),
+						SkillMin:       c.Int("npc-skill-min"),
+						SkillMax:       c.Int("npc-skill-max"),
+						MasteryMin:     c.Int("npc-mastery-min"),
+						MasteryMax:     c.Int("npc-mastery-max"),
+						LearnLevelMax:  c.Int("npc-learn-level-max"),
+						WeaponPPLMin:   c.Float64("npc-weapon-ppl-min"),
+						WeaponPPLMax:   c.Float64("npc-weapon-ppl-max"),
+						WeaponClipsMin: c.Int("npc-weapon-clips-min"),
+						WeaponClipsMax: c.Int("npc-weapon-clips-max"),
+						WeaponCountMin: c.Int("npc-weapon-count-min"),
+						WeaponCountMax: c.Int("npc-weapon-count-max"),
 					},
 				})
 			},
