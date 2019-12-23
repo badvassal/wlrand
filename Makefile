@@ -1,5 +1,5 @@
 PKG := github.com/badvassal/wlrand/version
-VERSION:="0.0.10"
+VERSION:="0.0.11"
 DATE := $(shell date --utc +%F,%R)
 COMMIT := $(shell git rev-parse --short HEAD)
 ifneq ($(shell git status --porcelain),)
