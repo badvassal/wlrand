@@ -14,11 +14,12 @@ const (
 
 var SkillClasses = []SkillClass{
 	SkillClassIDJack: SkillClass{
-		Name:        "Jack",
-		MinIQ:       3,
-		MaxArmorPPL: 3.0,
-		MinCashPPL:  0,
-		MaxCashPPL:  100,
+		Name:            "Jack",
+		MinIQ:           3,
+		BaseArmorPoints: -3.0,
+		MaxArmorPPL:     3.0,
+		MinCashPPL:      0,
+		MaxCashPPL:      100,
 		ArmorIDs: []int{
 			defs.ArmorIDNone,
 			defs.ArmorIDRobe,
@@ -68,11 +69,12 @@ var SkillClasses = []SkillClass{
 	},
 
 	SkillClassIDBrawler: SkillClass{
-		Name:        "Brawler",
-		MinIQ:       3,
-		MaxArmorPPL: 7.0,
-		MinCashPPL:  0,
-		MaxCashPPL:  100,
+		Name:            "Brawler",
+		MinIQ:           3,
+		BaseArmorPoints: -7.0,
+		MaxArmorPPL:     7.0,
+		MinCashPPL:      0,
+		MaxCashPPL:      100,
 		ArmorIDs: []int{
 			defs.ArmorIDNone,
 			defs.ArmorIDLeatherJacket,
@@ -121,11 +123,12 @@ var SkillClasses = []SkillClass{
 	},
 
 	SkillClassIDMarksman: SkillClass{
-		Name:        "Marksman",
-		MinIQ:       9,
-		MaxArmorPPL: 6.0,
-		MinCashPPL:  0,
-		MaxCashPPL:  100,
+		Name:            "Marksman",
+		MinIQ:           9,
+		BaseArmorPoints: -6.0,
+		MaxArmorPPL:     6.0,
+		MinCashPPL:      0,
+		MaxCashPPL:      100,
 		ArmorIDs: []int{
 			defs.ArmorIDNone,
 			defs.ArmorIDLeatherJacket,
@@ -174,11 +177,12 @@ var SkillClasses = []SkillClass{
 	},
 
 	SkillClassIDMedic: SkillClass{
-		Name:        "Medic",
-		MinIQ:       15,
-		MaxArmorPPL: 3.0,
-		MinCashPPL:  100,
-		MaxCashPPL:  300,
+		Name:            "Medic",
+		MinIQ:           15,
+		BaseArmorPoints: -3.0,
+		MaxArmorPPL:     3.0,
+		MinCashPPL:      100,
+		MaxCashPPL:      300,
 		ArmorIDs: []int{
 			defs.ArmorIDNone,
 			defs.ArmorIDRobe,
@@ -226,11 +230,12 @@ var SkillClasses = []SkillClass{
 	},
 
 	SkillClassIDDoctor: SkillClass{
-		Name:        "Doctor",
-		MinIQ:       21,
-		MaxArmorPPL: 2.0,
-		MinCashPPL:  400,
-		MaxCashPPL:  500,
+		Name:            "Doctor",
+		MinIQ:           21,
+		BaseArmorPoints: -2.0,
+		MaxArmorPPL:     2.0,
+		MinCashPPL:      400,
+		MaxCashPPL:      500,
 		ArmorIDs: []int{
 			defs.ArmorIDNone,
 			defs.ArmorIDRobe,
@@ -275,11 +280,12 @@ var SkillClasses = []SkillClass{
 	},
 
 	SkillClassIDRogue: SkillClass{
-		Name:        "Rogue",
-		MinIQ:       15,
-		MaxArmorPPL: 3.0,
-		MinCashPPL:  0,
-		MaxCashPPL:  500,
+		Name:            "Rogue",
+		MinIQ:           15,
+		BaseArmorPoints: -3.0,
+		MaxArmorPPL:     3.0,
+		MinCashPPL:      0,
+		MaxCashPPL:      500,
 		ArmorIDs: []int{
 			defs.ArmorIDNone,
 			defs.ArmorIDLeatherJacket,
@@ -327,11 +333,12 @@ var SkillClasses = []SkillClass{
 		},
 	},
 	SkillClassIDScientist: SkillClass{
-		Name:        "Scientist",
-		MinIQ:       24,
-		MaxArmorPPL: 1.0,
-		MinCashPPL:  0,
-		MaxCashPPL:  100,
+		Name:            "Scientist",
+		MinIQ:           24,
+		BaseArmorPoints: -1.0,
+		MaxArmorPPL:     1.0,
+		MinCashPPL:      0,
+		MaxCashPPL:      100,
 		ArmorIDs: []int{
 			defs.ArmorIDNone,
 			defs.ArmorIDRobe,

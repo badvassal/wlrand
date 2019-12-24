@@ -9,7 +9,11 @@ import (
 
 // selectArmorID randomly selects an armor type for an NPC.
 func selectArmorID(lvl int, sc skill.SkillClass) int {
-	armorPoints := itemPoints(lvl, 0.0, sc.MaxArmorPPL)
+	armorPoints := sc.BaseArmorPoints +
+		float64(itemPoints(lvl, 0.0, sc.MaxArmorPPL))
+	if armorPoints < 0.0 {
+		return defs.ArmorIDNone
+	}
 
 	targetAC := int(math.Sqrt(float64(armorPoints)))
 

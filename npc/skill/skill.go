@@ -17,13 +17,14 @@ import (
 const skillWeightReduction = 0.5
 
 type SkillClass struct {
-	Name        string
-	MinIQ       int
-	ArmorIDs    []int
-	MaxArmorPPL float64 // Max armor points per level.
-	MinCashPPL  int
-	MaxCashPPL  int
-	Weights     []float64 // 35 weights; one for each skill.
+	Name            string
+	MinIQ           int
+	ArmorIDs        []int
+	BaseArmorPoints float64
+	MaxArmorPPL     float64 // Max armor points per level.
+	MinCashPPL      int
+	MaxCashPPL      int
+	Weights         []float64 // 35 weights; one for each skill.
 }
 
 type SkillSet struct {
