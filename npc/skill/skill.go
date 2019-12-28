@@ -175,6 +175,12 @@ func CalcSkills(sp SkillParams) *SkillResult {
 		}
 	}
 
+	// Shuffle the skill order to prevent skills with low IDs from taking
+	// precedence during weapon selection.
+	rand.Shuffle(len(sr.Skills), func(i int, j int) {
+		sr.Skills[i], sr.Skills[j] = sr.Skills[j], sr.Skills[i]
+	})
+
 	sr.ExcessPoints = rem
 
 	return sr

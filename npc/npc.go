@@ -3,6 +3,7 @@ package npc
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 
 	log "github.com/sirupsen/logrus"
 
@@ -101,6 +102,12 @@ func fillNPC(ch *decode.Character, cfg npcdefs.NPCCfg) error {
 	ch.Con = ch.Maxcon
 
 	ch.IsNPC = false
+
+	// Sort skills in descending order of skill level just for player
+	// convenience.
+	sort.Slice(ch.Skills, func(i int, j int) bool {
+		return ch.Skills[i].Level > ch.Skills[j].Level
+	})
 
 	log.Infof("randomized npc: %s, level %d, %s-%s",
 		ch.Name, ch.Level, ar.Class.Name, sc.Name)
