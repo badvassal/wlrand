@@ -27,7 +27,7 @@ func CreateSignature(cfg randomizeCfg) (*msq.Body, error) {
 	}
 
 	return &msq.Body{
-		EncSection:   j,
+		SecSection:   j,
 		PlainSection: nil,
 	}, nil
 }
@@ -35,7 +35,7 @@ func CreateSignature(cfg randomizeCfg) (*msq.Body, error) {
 func FindSignature(bodies []msq.Body) (int, *Signature) {
 	sig := &Signature{}
 	for i, b := range bodies {
-		if err := json.Unmarshal(b.EncSection, sig); err == nil {
+		if err := json.Unmarshal(b.SecSection, sig); err == nil {
 			return i, sig
 		}
 	}

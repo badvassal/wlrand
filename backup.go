@@ -14,7 +14,7 @@ import (
 )
 
 // A backup block body has the following structure:
-// EncSection:
+// SecSection:
 //     BackupHdr (JSON-encoded)
 // PlainSection
 //	   gzipped GAME file
@@ -53,14 +53,14 @@ func EncodeBackupBlock(filename string, data []byte) (*msq.Body, error) {
 	}
 
 	return &msq.Body{
-		EncSection:   []byte(j),
+		SecSection:   []byte(j),
 		PlainSection: b.Bytes(),
 	}, nil
 }
 
 func DecodeBackupBlock(b msq.Body) *BackupRecord {
 	hdr := &BackupHdr{}
-	if err := json.Unmarshal(b.EncSection, hdr); err != nil {
+	if err := json.Unmarshal(b.SecSection, hdr); err != nil {
 		return nil
 	}
 
